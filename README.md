@@ -5,7 +5,7 @@
 - Ryan Ye (rmy43)
 - August Ehrlich (ae427)
 
-### Lines of Code: 119/1600
+### Lines of Code: 235/1600
 
 - Use `cloc --by-file --include-lang=OCaml .` to calculate this
 
