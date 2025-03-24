@@ -27,3 +27,16 @@ val to_string : t -> string
 
 val get_player_pos : t -> coords
 (** [get_player_pos room] returns the player's position in room. *)
+
+val explode : t -> unit
+(** [explode room] updates a currently happening explosion in the current room.
+*)
+
+val start_exploding : t -> int -> int -> int -> unit
+(** [start_exploding room center_x center_y radius] starts an explosion centered
+    at ([center_x], [center_y]) that will grow to a maximum radius of [radius].
+*)
+
+val exploding : t -> bool
+(** [exploding room] is whether or not an explosion is currently happening in
+    the provided room. *)
