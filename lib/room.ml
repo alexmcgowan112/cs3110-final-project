@@ -23,23 +23,45 @@ type t = {
   tiles : tile array array;
   mutable playerLoc : coords;
 }
+(** AF: [{tiles; playerLoc}] represents a room with [tiles] and a player at
+    [playerLoc]. RI: [playerLoc] is in bounds and is not inside of a wall tile.
+*)
 
 let new_room () =
-  { tiles = Array.make_matrix 11 11 Empty; playerLoc = { x = 5; y = 5 } }
+  let tiles = Array.make_matrix 11 11 Empty in
+  List.iter
+    (fun (x, y) -> tiles.(y).(x) <- Wall)
+    [
+      (2, 4);
+      (2, 5);
+      (2, 6);
+      (8, 4);
+      (8, 5);
+      (8, 6);
+      (4, 2);
+      (5, 2);
+      (6, 2);
+      (4, 8);
+      (5, 8);
+      (6, 8);
+    ];
+  { tiles; playerLoc = { x = 5; y = 5 } }
 
-let move_player room = function
+let move_player room direction =
+  let { x; y } = room.playerLoc in
+  match direction with
   | Up ->
-      if room.playerLoc.y > 0 then
-        room.playerLoc <- { x = room.playerLoc.x; y = room.playerLoc.y - 1 }
+      if y > 0 && room.tiles.(y - 1).(x) <> Wall then
+        room.playerLoc <- { x; y = y - 1 }
   | Down ->
-      if room.playerLoc.y < Array.length room.tiles - 1 then
-        room.playerLoc <- { x = room.playerLoc.x; y = room.playerLoc.y + 1 }
+      if y < Array.length room.tiles - 1 && room.tiles.(y + 1).(x) <> Wall then
+        room.playerLoc <- { x; y = y + 1 }
   | Left ->
-      if room.playerLoc.x > 0 then
-        room.playerLoc <- { x = room.playerLoc.x - 1; y = room.playerLoc.y }
+      if x > 0 && room.tiles.(y).(x - 1) <> Wall then
+        room.playerLoc <- { x = x - 1; y }
   | Right ->
-      if room.playerLoc.x < Array.length room.tiles.(0) - 1 then
-        room.playerLoc <- { x = room.playerLoc.x + 1; y = room.playerLoc.y }
+      if x < Array.length room.tiles.(0) - 1 && room.tiles.(y).(x + 1) <> Wall
+      then room.playerLoc <- { x = x + 1; y }
 
 let tile_to_string = function
   | Empty -> "_"
@@ -57,3 +79,5 @@ let to_string room =
     (fun acc row ->
       if acc = "" then row_to_string row else acc ^ "\n" ^ row_to_string row)
     "" tiles
+
+let get_player_pos { playerLoc; _ } = playerLoc
