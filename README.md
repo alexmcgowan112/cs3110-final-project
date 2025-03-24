@@ -16,6 +16,7 @@
 - Items that can be interacted with
 - Enemies
 - Load a room/dungeon from a file
+- Help command (to list possible actions)
 - (Not sure if this is feasible) Arrows keys just move you instead of having to type and press enter
 - (Stretch Goal) Random level generation
 - ...
