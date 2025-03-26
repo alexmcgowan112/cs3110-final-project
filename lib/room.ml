@@ -64,12 +64,14 @@ let new_room () =
     ];
   { tiles; playerLoc = { x = 5; y = 5 }; explosion = None; bombs = [] }
 
+let red_text s = "\027[31m" ^ s ^ "\027[0m"
+
 let tile_to_string = function
   | Empty -> "_"
   | Wall -> "#"
   | Exit -> "O"
   | Item i -> "!"
-  | Explosion _ -> "\027[31m" ^ "*" ^ "\027[0m"
+  | Explosion _ -> red_text "*"
 (* to make the explosion red, from ansiterminal. see
    https://github.com/Chris00/ANSITerminal/blob/master/src/ANSITerminal_unix.ml*)
 

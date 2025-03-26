@@ -1,11 +1,4 @@
-## Group Members
-
-- Alex McGowan (acm355)
-- Lance Entrekin (lee53)
-- Ryan Ye (rmy43)
-- August Ehrlich (ae427)
-
-### Lines of Code: 235/1600
+### Lines of Code: 216/1600
 
 - Use `cloc --by-file --include-lang=OCaml .` to calculate this
 
