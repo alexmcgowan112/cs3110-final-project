@@ -42,3 +42,4 @@ val exploding : t -> bool
     the provided room. *)
 
 val place_bomb : t -> unit
+

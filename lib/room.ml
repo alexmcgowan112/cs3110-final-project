@@ -64,14 +64,15 @@ let new_room () =
     ];
   { tiles; playerLoc = { x = 5; y = 5 }; explosion = None; bombs = [] }
 
-let red_text s = "\027[31m" ^ s ^ "\027[0m"
+(* open Curses *)
+(* let red_text s = "\027[31m" ^ s ^ "\027[0m" *)
 
 let tile_to_string = function
   | Empty -> "_"
   | Wall -> "#"
   | Exit -> "O"
   | Item i -> "!"
-  | Explosion _ -> red_text "*"
+  | Explosion _ -> "*"
 (* to make the explosion red, from ansiterminal. see
    https://github.com/Chris00/ANSITerminal/blob/master/src/ANSITerminal_unix.ml*)
 
@@ -89,6 +90,7 @@ let to_string room =
       if acc = "" then row_to_string row else acc ^ "\n" ^ row_to_string row)
     "" tiles
 
+let to_array room = room.tiles
 let get_player_pos { playerLoc; _ } = playerLoc
 
 let tile_is_exploding start_x start_y tile_x tile_y radius =
