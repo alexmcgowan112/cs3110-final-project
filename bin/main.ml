@@ -1,4 +1,9 @@
 open Cs3110_final_project
+open Keyboard
+
+module Input = Keyboard (struct
+  let get = Curses.getch
+end)
 
 (*let print_from_file path = BatEnum.iter print_endline (BatFile.lines_of
   path)*)
@@ -40,16 +45,16 @@ let handle_explosion () =
 
 let rec game_loop () =
   print_room ();
-  let line = Keyboard.read_input () in
-  (match line with
-  | Keyboard.ArrowUp -> move_player Room.Up
-  | Keyboard.ArrowDown -> move_player Room.Down
-  | Keyboard.ArrowRight -> move_player Room.Right
-  | Keyboard.ArrowLeft -> move_player Room.Left
-  | Keyboard.B -> Room.place_bomb room
-  | Keyboard.E -> handle_explosion ()
-  | Keyboard.Q -> exit 0
-  | Keyboard.None -> ());
+  let input = Input.read_input () in
+  (match input with
+  | Input.ArrowUp -> move_player Room.Up
+  | Input.ArrowDown -> move_player Room.Down
+  | Input.ArrowRight -> move_player Room.Right
+  | Input.ArrowLeft -> move_player Room.Left
+  | Input.B -> Room.place_bomb room
+  | Input.E -> handle_explosion ()
+  | Input.Q -> exit 0
+  | Input.None -> ());
   if Room.exploding room then
     while Room.exploding room do
       Room.explode room;
