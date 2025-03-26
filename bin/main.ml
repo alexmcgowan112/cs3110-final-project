@@ -5,24 +5,29 @@ module Input = Keyboard (struct
   let get = Curses.getch
 end)
 
+let window =
+  let w = Curses.initscr () in
+  Curses.scrollok w false;
+  ignore (Curses.cbreak ());
+  ignore (Curses.noecho ());
+  ignore (Curses.keypad w true);
+  ignore (Curses.curs_set 0);
+  w
+
 (*let print_from_file path = BatEnum.iter print_endline (BatFile.lines_of
   path)*)
 let room = Room.new_room ()
 let previous_direction = ref Room.Up
-
-let erase_previous_lines n =
-  for _ = 1 to n do
-    Printf.printf "\027[1A\027[2K" (* Move cursor up, clear line *)
-  done;
-  flush stdout
 
 let move_player dir =
   Room.move_player room dir;
   previous_direction := dir
 
 let print_room () =
-  erase_previous_lines 100;
-  print_endline (Room.to_string room)
+  Curses.erase ();
+  Curses.clearok window false;
+  ignore (Curses.mvwaddstr window 0 0 (Room.to_string room));
+  ignore (Curses.refresh ())
 
 let handle_explosion () =
   print_string "Enter the x-coord of the explosion center (top left is 0,0): ";
@@ -53,7 +58,9 @@ let rec game_loop () =
   | Input.ArrowLeft -> move_player Room.Left
   | Input.B -> Room.place_bomb room
   | Input.E -> handle_explosion ()
-  | Input.Q -> exit 0
+  | Input.Q ->
+      Curses.endwin ();
+      exit 0
   | Input.None -> ());
   if Room.exploding room then
     while Room.exploding room do
@@ -64,6 +71,4 @@ let rec game_loop () =
     done;
   game_loop ()
 
-let () =
-  print_endline (Room.to_string room ^ "\n");
-  game_loop ()
+let () = game_loop ()

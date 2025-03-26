@@ -14,15 +14,7 @@ struct
     | Q
     | None
 
-  let ncurses_init () =
-    let stdscr = initscr () in
-    ignore (cbreak ());
-    ignore (noecho ());
-    ignore (keypad stdscr true);
-    ()
-
   let read_input () =
-    ncurses_init ();
     let result =
       match G.get () with
       | 98 -> B
