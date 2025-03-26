@@ -40,3 +40,5 @@ val start_exploding : t -> int -> int -> int -> unit
 val exploding : t -> bool
 (** [exploding room] is whether or not an explosion is currently happening in
     the provided room. *)
+
+val place_bomb : t -> unit
