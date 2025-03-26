@@ -6,6 +6,8 @@ type t =
   | ArrowLeft
   | ArrowRight
   | B
+  | E
+  | Q
   | None
 
 let ncurses_init () =
@@ -20,6 +22,8 @@ let read_input () =
   let result =
     match getch () with
     | 98 -> B
+    | 113 -> Q
+    | 101 -> E
     | code when code = Key.up -> ArrowUp
     | code when code = Key.down -> ArrowDown
     | code when code = Key.left -> ArrowLeft

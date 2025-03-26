@@ -1,6 +1,7 @@
 open Cs3110_final_project
 
-let print_from_file path = BatEnum.iter print_endline (BatFile.lines_of path)
+(*let print_from_file path = BatEnum.iter print_endline (BatFile.lines_of
+  path)*)
 let room = Room.new_room ()
 let previous_direction = ref Room.Up
 
@@ -39,21 +40,16 @@ let handle_explosion () =
 
 let rec game_loop () =
   print_room ();
-  print_string
-    "Input a direction to move (up, down, left, or right), \"e\" for an \
-     explosion, \"b\" to place a bomb with a fuse, or \"q\" to quit: ";
-  let line = read_line () in
-  if String.length line > 0 then
-    match Char.lowercase_ascii (String.get line 0) with
-    | 'u' -> move_player Room.Up
-    | 'd' -> move_player Room.Down
-    | 'l' -> move_player Room.Left
-    | 'r' -> move_player Room.Right
-    | 'b' -> Room.place_bomb room
-    | 'e' -> handle_explosion ()
-    | 'q' -> exit 0
-    | _ -> ()
-  else Room.move_player room !previous_direction;
+  let line = Keyboard.read_input () in
+  (match line with
+  | Keyboard.ArrowUp -> move_player Room.Up
+  | Keyboard.ArrowDown -> move_player Room.Down
+  | Keyboard.ArrowRight -> move_player Room.Right
+  | Keyboard.ArrowLeft -> move_player Room.Left
+  | Keyboard.B -> Room.place_bomb room
+  | Keyboard.E -> handle_explosion ()
+  | Keyboard.Q -> exit 0
+  | Keyboard.None -> ());
   if Room.exploding room then
     while Room.exploding room do
       Room.explode room;
