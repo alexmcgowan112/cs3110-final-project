@@ -28,7 +28,14 @@ let window =
 
 (*let print_from_file path = BatEnum.iter print_endline (BatFile.lines_of
   path)*)
-let room = Room.new_room ()
+let room =
+  if Array.length Sys.argv = 1 then Room.new_room ()
+  else
+    match Sys.argv.(1) with
+    | "maze" -> Room.load_room_from_file "data/rooms/maze.json"
+    | "empty" -> Room.load_room_from_file "data/rooms/empty.json"
+    | _ -> Room.new_room ()
+
 let previous_direction = ref Room.Up
 
 let move_player dir =

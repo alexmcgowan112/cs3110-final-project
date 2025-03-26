@@ -17,6 +17,10 @@ val new_room : unit -> t
 (** [new_room ()] returns a new 11 by 11 room filled mostly with empty tiles and
     a few walls. *)
 
+val load_room_from_file : string -> t
+(** [load_room_from_file filename] creates a room from the json file at
+    [filename]. *)
+
 (* TODO: It would probably make more sense to turn this into a take_action
    function, where there are actions avaliable besides just moving. This would
    require changing direction too.*)

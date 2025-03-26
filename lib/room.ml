@@ -65,15 +65,13 @@ let load_room_from_file filename =
       bombs = [];
     }
 
-let new_room () = load_room_from_file "data/rooms/simpleWalls.json"
+let new_room () = load_room_from_file "data/rooms/simple.json"
 
 let tile_to_string = function
   | Empty -> "_"
   | Wall -> "#"
   | Exit -> "O"
   | Explosion _ -> "*"
-(* to make the explosion red, from ansiterminal. see
-   https://github.com/Chris00/ANSITerminal/blob/master/src/ANSITerminal_unix.ml*)
 
 let to_string room =
   let tiles = Array.map (fun row -> Array.map tile_to_string row) room.tiles in
