@@ -1,4 +1,5 @@
-Type 'left', 'right', 'up', or 'down' to move in one of those direction. 
-Type 'bomb' to place a bomb. 
-Type 'quit' to exit.
-Typing the first character of any of these commands also works.
+Use the arrow keys to move.
+Press 'b' to place a bomb. 
+Press 'q' to exit.
+
+TODO: Press enter for more commands.

@@ -9,15 +9,10 @@ type direction =
   | Left
   | Right
 
-type item =
-  | Placeholder1
-  | Placeholder2
-
 type tile =
   | Empty
   | Wall
   | Exit
-  | Item of item
   | Explosion of tile
 
 type explosion = {
@@ -38,42 +33,45 @@ type t = {
   mutable explosion : explosion option;
   mutable bombs : bomb list;
 }
-
 (** AF: [{tiles; playerLoc; explosion}] represents a room with [tiles], a player
     at [playerLoc] and a (potential) current explosion [explosion]. RI:
     [playerLoc] is in bounds and is not inside of a wall tile. [explosion] is
     None if no explosion is currently happening. *)
 
-let new_room () =
-  let tiles = Array.make_matrix 11 11 Empty in
-  List.iter
-    (fun (x, y) -> tiles.(y).(x) <- Wall)
-    [
-      (2, 4);
-      (2, 5);
-      (2, 6);
-      (8, 4);
-      (8, 5);
-      (8, 6);
-      (4, 2);
-      (5, 2);
-      (6, 2);
-      (4, 8);
-      (5, 8);
-      (6, 8);
-    ];
-  { tiles; playerLoc = { x = 5; y = 5 }; explosion = None; bombs = [] }
+let load_room_from_file filename =
+  let get_from_json key =
+    Yojson.Safe.from_file filename |> Yojson.Safe.Util.member key
+  in
+  let playerStartX = get_from_json "playerStartX" |> Yojson.Safe.Util.to_int in
+  let playerStartY = get_from_json "playerStartY" |> Yojson.Safe.Util.to_int in
+  let tiles =
+    get_from_json "layout" |> Yojson.Safe.Util.to_list
+    |> List.map (fun row ->
+           row |> Yojson.Safe.Util.to_list
+           |> List.map (fun s ->
+                  match Yojson.Safe.Util.to_string s with
+                  | "#" -> Wall
+                  | _ -> Empty)
+           |> Array.of_list)
+    |> Array.of_list
+  in
+  if Array.exists (fun row -> Array.length row <> Array.length tiles.(0)) tiles
+  then failwith "Layout isn't rectangular"
+  else
+    {
+      tiles;
+      playerLoc = { x = playerStartX; y = playerStartY };
+      explosion = None;
+      bombs = [];
+    }
 
-let red_text s = "\027[31m" ^ s ^ "\027[0m"
+let new_room () = load_room_from_file "data/rooms/simple.json"
 
 let tile_to_string = function
   | Empty -> "."
   | Wall -> "#"
   | Exit -> "O"
-  | Item i -> "!"
-  | Explosion _ -> red_text "*"
-(* to make the explosion red, from ansiterminal. see
-   https://github.com/Chris00/ANSITerminal/blob/master/src/ANSITerminal_unix.ml*)
+  | Explosion _ -> "*"
 
 let to_string room =
   let tiles = Array.map (fun row -> Array.map tile_to_string row) room.tiles in
@@ -89,18 +87,38 @@ let to_string room =
       if acc = "" then row_to_string row else acc ^ "\n" ^ row_to_string row)
     "" tiles
 
+let to_string_array room =
+  let tiles = Array.map (fun row -> Array.map tile_to_string row) room.tiles in
+  List.iter
+    (fun { pos = { x; y }; fuse } -> tiles.(y).(x) <- string_of_int fuse)
+    room.bombs;
+  tiles.(room.playerLoc.y).(room.playerLoc.x) <- "@";
+  tiles
+
+let to_array room = room.tiles
 let get_player_pos { playerLoc; _ } = playerLoc
 
 let tile_is_exploding start_x start_y tile_x tile_y radius =
   (* manhatten distance *)
   abs (start_x - tile_x) + abs (start_y - tile_y) = radius
 
+let tile_is_exploding2 start_x start_y tile_x tile_y radius =
+  (* euclidian distance *)
+  radius
+  = int_of_float
+      (ceil
+         (sqrt
+            (float_of_int
+               (((start_x - tile_x) * (start_x - tile_x))
+               + ((start_y - tile_y) * (start_y - tile_y))))
+         -. 0.5))
+
 let update_explosion x y radius room =
   Array.iteri
     (fun curr_row_num curr_row ->
       Array.iteri
         (fun curr_col_num curr_tile ->
-          if tile_is_exploding x y curr_row_num curr_col_num radius then
+          if tile_is_exploding2 x y curr_row_num curr_col_num radius then
             room.(curr_row_num).(curr_col_num) <- Explosion curr_tile
           else ())
         curr_row)

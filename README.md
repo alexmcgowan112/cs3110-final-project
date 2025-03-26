@@ -1,4 +1,4 @@
-### Lines of Code: 282/1600
+### Lines of Code: 347/1600
 
 - Use `cloc --by-file --include-lang=OCaml .` to calculate this
 
