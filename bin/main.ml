@@ -17,6 +17,8 @@ let window =
     ignore (Curses.start_color ());
     (* Define color pairs *)
     ignore (Curses.init_pair 1 Curses.Color.red Curses.Color.black);
+    (*curses colors intiialized here because this function is called in the
+      beginning. *)
     ignore (Curses.init_pair 2 Curses.Color.green Curses.Color.black);
     ignore (Curses.init_pair 3 Curses.Color.blue Curses.Color.black);
     ignore (Curses.init_pair 4 Curses.Color.yellow Curses.Color.black);
@@ -37,10 +39,12 @@ let move_player dir =
 let match_characters win i j = function
   | "*" ->
       ignore (Curses.attron (Curses.A.color_pair 1));
+      (*If you need to do stuff, change this # ^*)
       ignore (Curses.mvwaddstr win i j "*");
       ignore (Curses.attroff (Curses.A.color_pair 1))
   | x ->
       ignore (Curses.attron (Curses.A.color_pair 0));
+      (*0 is default, the rest match the indexes up top. ctrl+F for init_pair*)
       ignore (Curses.mvwaddstr win i j x);
       ignore (Curses.attroff (Curses.A.color_pair 0))
 
