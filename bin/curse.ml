@@ -7,17 +7,6 @@ let () =
   ignore (noecho ());
   ignore (keypad stdscr true);
 
-  (* Enable color mode *)
-  if has_colors () then (
-    ignore (start_color ());
-    (* Define color pairs *)
-    ignore (init_pair 1 Color.red Color.black);
-    ignore (init_pair 2 Color.green Color.black);
-    ignore (init_pair 3 Color.blue Color.black);
-    ignore (init_pair 4 Color.yellow Color.black);
-    ignore (init_pair 5 Color.cyan Color.black);
-    ignore (init_pair 6 Color.magenta Color.black));
-
   (* Extract arrow key sequences *)
   let arrow_keys =
     [
