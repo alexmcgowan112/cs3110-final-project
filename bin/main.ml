@@ -1,5 +1,6 @@
 open Cs3110_final_project
 
+let print_from_file path = BatEnum.iter print_endline (BatFile.lines_of path)
 let room = Room.new_room ()
 let previous_direction = ref Room.Up
 
@@ -24,7 +25,9 @@ let handle_explosion () =
     print_string "Enter the y-coord of the explosion center (top left is 0,0): "
   in
   let y_coord = read_int () in
-  let () = print_string "Enter the maximum radius of the explosion (in lines): " in
+  let () =
+    print_string "Enter the maximum radius of the explosion (in lines): "
+  in
   let radius = read_int () in
   Room.start_exploding room x_coord y_coord radius;
   while Room.exploding room do
@@ -37,8 +40,8 @@ let handle_explosion () =
 let rec game_loop () =
   print_room ();
   print_string
-    "Input a direction to move (up, down, left, or right) or \"e\" for an \
-     explosion: ";
+    "Input a direction to move (up, down, left, or right), \"e\" for an \
+     explosion, \"b\" to place a bomb with a fuse, or \"q\" to quit: ";
   let line = read_line () in
   if String.length line > 0 then
     match Char.lowercase_ascii (String.get line 0) with
@@ -46,9 +49,18 @@ let rec game_loop () =
     | 'd' -> move_player Room.Down
     | 'l' -> move_player Room.Left
     | 'r' -> move_player Room.Right
+    | 'b' -> Room.place_bomb room
     | 'e' -> handle_explosion ()
+    | 'q' -> exit 0
     | _ -> ()
   else Room.move_player room !previous_direction;
+  if Room.exploding room then
+    while Room.exploding room do
+      Room.explode room;
+      print_room ();
+      flush stdout;
+      Unix.sleepf 0.3
+    done;
   game_loop ()
 
 let () =
