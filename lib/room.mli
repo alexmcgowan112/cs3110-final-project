@@ -25,6 +25,10 @@ val move_player : t -> direction -> unit
 val to_string : t -> string
 (** [to_string room] outputs a string representation of [room] *)
 
+val to_string_array : t -> string array array
+(** [to_string_array room] outputs a string array array representation of [room]
+*)
+
 val get_player_pos : t -> coords
 (** [get_player_pos room] returns the player's position in room. *)
 
@@ -42,4 +46,3 @@ val exploding : t -> bool
     the provided room. *)
 
 val place_bomb : t -> unit
-

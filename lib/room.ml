@@ -90,6 +90,14 @@ let to_string room =
       if acc = "" then row_to_string row else acc ^ "\n" ^ row_to_string row)
     "" tiles
 
+let to_string_array room =
+  let tiles = Array.map (fun row -> Array.map tile_to_string row) room.tiles in
+  List.iter
+    (fun { pos = { x; y }; fuse } -> tiles.(y).(x) <- string_of_int fuse)
+    room.bombs;
+  tiles.(room.playerLoc.y).(room.playerLoc.x) <- "@";
+  tiles
+
 let to_array room = room.tiles
 let get_player_pos { playerLoc; _ } = playerLoc
 
