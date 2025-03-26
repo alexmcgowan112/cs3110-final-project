@@ -1,4 +1,10 @@
 (executable
  (public_name cs3110_final_project)
  (name main)
- (libraries cs3110_final_project unix))
+ (libraries cs3110_final_project unix curses))
+
+ (executable
+ (public_name curses_test)
+ (name curse)
+ (libraries cs3110_final_project unix curses))
+
