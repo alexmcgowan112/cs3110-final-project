@@ -97,12 +97,23 @@ let tile_is_exploding start_x start_y tile_x tile_y radius =
   (* manhatten distance *)
   abs (start_x - tile_x) + abs (start_y - tile_y) = radius
 
+let tile_is_exploding2 start_x start_y tile_x tile_y radius =
+  (* euclidian distance *)
+  radius
+  = int_of_float
+      (ceil
+         (sqrt
+            (float_of_int
+               (((start_x - tile_x) * (start_x - tile_x))
+               + ((start_y - tile_y) * (start_y - tile_y))))
+         -. 0.5))
+
 let update_explosion x y radius room =
   Array.iteri
     (fun curr_row_num curr_row ->
       Array.iteri
         (fun curr_col_num curr_tile ->
-          if tile_is_exploding x y curr_row_num curr_col_num radius then
+          if tile_is_exploding2 x y curr_row_num curr_col_num radius then
             room.(curr_row_num).(curr_col_num) <- Explosion curr_tile
           else ())
         curr_row)
