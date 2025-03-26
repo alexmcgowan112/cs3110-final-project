@@ -71,7 +71,6 @@ let tile_to_string = function
   | Empty -> "_"
   | Wall -> "#"
   | Exit -> "O"
-  | Item i -> "!"
   | Explosion _ -> "*"
 (* to make the explosion red, from ansiterminal. see
    https://github.com/Chris00/ANSITerminal/blob/master/src/ANSITerminal_unix.ml*)
