@@ -17,6 +17,9 @@ val new_room : unit -> t
 (** [new_room ()] returns a new 11 by 11 room filled mostly with empty tiles and
     a few walls. *)
 
+(* TODO: It would probably make more sense to turn this into a take_action
+   function, where there are actions avaliable besides just moving. This would
+   require changing direction too.*)
 val move_player : t -> direction -> unit
 (** [move_player room direction] attempts to move the player in [room]
     [direction]. The player will not move if they reach the edge of the room or
@@ -46,3 +49,4 @@ val exploding : t -> bool
     the provided room. *)
 
 val place_bomb : t -> unit
+(** [place_bomb room] creates a bomb at the player's current location. *)

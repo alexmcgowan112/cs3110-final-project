@@ -9,15 +9,10 @@ type direction =
   | Left
   | Right
 
-type item =
-  | Placeholder1
-  | Placeholder2
-
 type tile =
   | Empty
   | Wall
   | Exit
-  | Item of item
   | Explosion of tile
 
 type explosion = {
@@ -38,34 +33,39 @@ type t = {
   mutable explosion : explosion option;
   mutable bombs : bomb list;
 }
-
 (** AF: [{tiles; playerLoc; explosion}] represents a room with [tiles], a player
     at [playerLoc] and a (potential) current explosion [explosion]. RI:
     [playerLoc] is in bounds and is not inside of a wall tile. [explosion] is
     None if no explosion is currently happening. *)
 
-let new_room () =
-  let tiles = Array.make_matrix 11 11 Empty in
-  List.iter
-    (fun (x, y) -> tiles.(y).(x) <- Wall)
-    [
-      (2, 4);
-      (2, 5);
-      (2, 6);
-      (8, 4);
-      (8, 5);
-      (8, 6);
-      (4, 2);
-      (5, 2);
-      (6, 2);
-      (4, 8);
-      (5, 8);
-      (6, 8);
-    ];
-  { tiles; playerLoc = { x = 5; y = 5 }; explosion = None; bombs = [] }
+let load_room_from_file filename =
+  let get_from_json key =
+    Yojson.Safe.from_file filename |> Yojson.Safe.Util.member key
+  in
+  let playerStartX = get_from_json "playerStartX" |> Yojson.Safe.Util.to_int in
+  let playerStartY = get_from_json "playerStartY" |> Yojson.Safe.Util.to_int in
+  let tiles =
+    get_from_json "layout" |> Yojson.Safe.Util.to_list
+    |> List.map (fun row ->
+           row |> Yojson.Safe.Util.to_list
+           |> List.map (fun s ->
+                  match Yojson.Safe.Util.to_string s with
+                  | "#" -> Wall
+                  | _ -> Empty)
+           |> Array.of_list)
+    |> Array.of_list
+  in
+  if Array.exists (fun row -> Array.length row <> Array.length tiles.(0)) tiles
+  then failwith "Layout isn't rectangular"
+  else
+    {
+      tiles;
+      playerLoc = { x = playerStartX; y = playerStartY };
+      explosion = None;
+      bombs = [];
+    }
 
-(* open Curses *)
-(* let red_text s = "\027[31m" ^ s ^ "\027[0m" *)
+let new_room () = load_room_from_file "data/rooms/simpleWalls.json"
 
 let tile_to_string = function
   | Empty -> "_"

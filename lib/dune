@@ -1,3 +1,3 @@
 (library
  (name cs3110_final_project)
- (libraries curses))
+ (libraries curses yojson))
