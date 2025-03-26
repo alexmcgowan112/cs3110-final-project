@@ -67,7 +67,7 @@ let new_room () =
 let red_text s = "\027[31m" ^ s ^ "\027[0m"
 
 let tile_to_string = function
-  | Empty -> "_"
+  | Empty -> "."
   | Wall -> "#"
   | Exit -> "O"
   | Item i -> "!"

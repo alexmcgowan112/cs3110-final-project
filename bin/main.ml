@@ -8,6 +8,7 @@ end)
 let window =
   let w = Curses.initscr () in
   Curses.scrollok w false;
+  ignore (Curses.start_color ());
   ignore (Curses.cbreak ());
   ignore (Curses.noecho ());
   ignore (Curses.keypad w true);
