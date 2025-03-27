@@ -17,11 +17,14 @@ pm:
 # Set to false if you don't want your gallery entry to be public.
 publish: true
 # Pithy title
-title: "TODO"
+title: "Big ahh bombs"
 # OK if this is a Cornell Github link, but public gallery viewers won't be able to see it.
 git-repo: "https://github.coecis.cornell.edu/acm355/cs3110-final-project"
 # Replace the URL with your own demo video.
-demo-video-url: "TODO"
+demo-video-url: "https://youtu.be/5TcWCHNHYJE"
 # Write a short, attention-grabbing description of your project.
 desc: >
-  TODO
+  Our project is an interactive roguelike game. Players can move their character between rooms
+  find cool items, and fight enemies using a precision weapon, large bombs. 
+  Players will be able to upgrade their character and fight increasingly difficult enemies 
+  until they reach some arbitrary stat. Wooo.
