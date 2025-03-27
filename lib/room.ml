@@ -60,6 +60,7 @@ let load_room_from_file filename =
     }
 
 let new_room () = load_room_from_file "data/rooms/simple.json"
+let test_room () = load_room_from_file "../data/rooms/simple.json"
 
 let tile_to_string = function
   | Empty -> "."

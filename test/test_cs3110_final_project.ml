@@ -24,8 +24,6 @@ module Input = Keyboard.MakeInput (struct
     else 1
 end)
 
-let room = Room.new_room ()
-
 let string_of_list elem_to_string lst =
   "[" ^ List.fold_left (fun acc el -> elem_to_string el ^ ";" ^ acc) "]" lst
 
@@ -41,27 +39,34 @@ let input_responses () =
   in
   helper curr_input out
 
-let rec run_inputs input_list =
-  match input_list with
-  | [] -> ()
-  | input :: t ->
-      (match input with
-      | Keyboard.ArrowUp -> Room.move_player room Keyboard.ArrowUp
-      | Keyboard.ArrowDown -> Room.move_player room Keyboard.ArrowDown
-      | Keyboard.ArrowRight -> Room.move_player room Keyboard.ArrowRight
-      | Keyboard.ArrowLeft -> Room.move_player room Keyboard.ArrowLeft
-      | Keyboard.B -> Room.place_bomb room
-      | Keyboard.Q ->
-          Curses.endwin ();
-          exit 0
-      | Keyboard.None -> ()
-      | Keyboard.E -> ());
-      if Room.exploding room then
-        while Room.exploding room do
-          Room.explode room;
-          Unix.sleepf 0.3
-        done;
-      run_inputs t
+let default_room = Room.test_room ()
+
+let run_inputs input_list =
+  let room = Room.test_room () in
+  let rec run_inputs_helper lst =
+    match lst with
+    | [] -> ()
+    | input :: t ->
+        (match input with
+        | Keyboard.ArrowUp -> Room.move_player room Keyboard.ArrowUp
+        | Keyboard.ArrowDown -> Room.move_player room Keyboard.ArrowDown
+        | Keyboard.ArrowRight -> Room.move_player room Keyboard.ArrowRight
+        | Keyboard.ArrowLeft -> Room.move_player room Keyboard.ArrowLeft
+        | Keyboard.B -> Room.place_bomb room
+        | Keyboard.Q ->
+            Curses.endwin ();
+            exit 0
+        | Keyboard.None -> ()
+        | Keyboard.E -> ());
+        if Room.exploding room then
+          while Room.exploding room do
+            Room.explode room;
+            Unix.sleepf 0.3
+          done;
+        run_inputs_helper t
+  in
+  run_inputs_helper input_list;
+  room
 
 let tests =
   "test suite"
@@ -79,6 +84,32 @@ let tests =
              ]
              (input_responses ())
              ~printer:(string_of_list Input.string_of_input) );
+         ( "moving up moves player up" >:: fun _ ->
+           assert_equal
+             (Room.get_player_pos (run_inputs [ Keyboard.ArrowUp ]))
+             { x = 5; y = 4 } );
+         ( "moving down moves player down" >:: fun _ ->
+           assert_equal
+             (Room.get_player_pos (run_inputs [ Keyboard.ArrowDown ]))
+             { x = 5; y = 6 } );
+         ( "moving left moves player left" >:: fun _ ->
+           assert_equal
+             (Room.get_player_pos (run_inputs [ Keyboard.ArrowLeft ]))
+             { x = 4; y = 5 } );
+         ( "moving right moves player right" >:: fun _ ->
+           assert_equal
+             (Room.get_player_pos (run_inputs [ Keyboard.ArrowRight ]))
+             { x = 6; y = 5 } );
+         ( "running into a wall stops the player" >:: fun _ ->
+           assert_equal
+             (Room.get_player_pos
+                (run_inputs
+                   [
+                     Keyboard.ArrowRight;
+                     Keyboard.ArrowRight;
+                     Keyboard.ArrowRight;
+                   ]))
+             { x = 7; y = 5 } );
        ]
 
 let _ = run_test_tt_main tests

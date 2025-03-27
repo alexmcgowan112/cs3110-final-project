@@ -47,3 +47,7 @@ val exploding : t -> bool
 
 val place_bomb : t -> unit
 (** [place_bomb room] creates a bomb at the player's current location. *)
+
+val test_room : unit -> t
+(** [test_room] returns the data/rooms/simple.json room (but can be called from
+    test_cs3110_final_project.ml)*)

@@ -24,7 +24,7 @@ let window =
   ignore (Curses.noecho ());
   ignore (Curses.keypad w true);
   ignore (Curses.curs_set 0);
-  ignore (Curses.mousemask 0);
+  ignore (Curses.mousemask 1);
   (* Enable color mode *)
   if Curses.has_colors () then new_colors ();
   w

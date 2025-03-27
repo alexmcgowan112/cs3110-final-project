@@ -1,3 +1,4 @@
 (test
  (name test_cs3110_final_project)
- (libraries ounit2 cs3110_final_project))
+ (libraries ounit2 cs3110_final_project)
+ (deps (glob_files_rec ../data/*)))
