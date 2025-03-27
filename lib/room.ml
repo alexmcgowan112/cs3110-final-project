@@ -3,12 +3,6 @@ type coords = {
   y : int;
 }
 
-type direction =
-  | Up
-  | Down
-  | Left
-  | Right
-
 type tile =
   | Empty
   | Wall
@@ -98,11 +92,11 @@ let to_string_array room =
 let to_array room = room.tiles
 let get_player_pos { playerLoc; _ } = playerLoc
 
-let tile_is_exploding start_x start_y tile_x tile_y radius =
+let manhattan_dist start_x start_y tile_x tile_y radius =
   (* manhatten distance *)
   abs (start_x - tile_x) + abs (start_y - tile_y) = radius
 
-let tile_is_exploding2 start_x start_y tile_x tile_y radius =
+let tile_is_exploding start_x start_y tile_x tile_y radius =
   (* euclidian distance *)
   radius
   = int_of_float
@@ -118,7 +112,7 @@ let update_explosion x y radius room =
     (fun curr_row_num curr_row ->
       Array.iteri
         (fun curr_col_num curr_tile ->
-          if tile_is_exploding2 x y curr_row_num curr_col_num radius then
+          if tile_is_exploding x y curr_row_num curr_col_num radius then
             room.(curr_row_num).(curr_col_num) <- Explosion curr_tile
           else ())
         curr_row)
@@ -158,18 +152,19 @@ let place_bomb room =
 let move_player room direction =
   let { x; y } = room.playerLoc in
   (match direction with
-  | Up ->
+  | Keyboard.ArrowUp ->
       if y > 0 && room.tiles.(y - 1).(x) <> Wall then
         room.playerLoc <- { x; y = y - 1 }
-  | Down ->
+  | Keyboard.ArrowDown ->
       if y < Array.length room.tiles - 1 && room.tiles.(y + 1).(x) <> Wall then
         room.playerLoc <- { x; y = y + 1 }
-  | Left ->
+  | Keyboard.ArrowLeft ->
       if x > 0 && room.tiles.(y).(x - 1) <> Wall then
         room.playerLoc <- { x = x - 1; y }
-  | Right ->
+  | Keyboard.ArrowRight ->
       if x < Array.length room.tiles.(0) - 1 && room.tiles.(y).(x + 1) <> Wall
-      then room.playerLoc <- { x = x + 1; y });
+      then room.playerLoc <- { x = x + 1; y }
+  | _ -> ());
   List.iter
     (fun b ->
       b.fuse <- b.fuse - 1;

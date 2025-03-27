@@ -1,9 +1,20 @@
 open Cs3110_final_project
-open Keyboard
 
-module Input = Keyboard (struct
+module Input = Keyboard.MakeInput (struct
   let get = Curses.getch
 end)
+
+let new_colors () =
+  ignore (Curses.start_color ());
+  (* Define color pairs *)
+  ignore (Curses.init_pair 1 Curses.Color.red Curses.Color.black);
+  (*curses colors intiialized here because this function is called in the
+    beginning. *)
+  ignore (Curses.init_pair 2 Curses.Color.green Curses.Color.black);
+  ignore (Curses.init_pair 3 Curses.Color.blue Curses.Color.black);
+  ignore (Curses.init_pair 4 Curses.Color.yellow Curses.Color.black);
+  ignore (Curses.init_pair 5 Curses.Color.cyan Curses.Color.black);
+  ignore (Curses.init_pair 6 Curses.Color.magenta Curses.Color.black)
 
 let window =
   let w = Curses.initscr () in
@@ -13,18 +24,9 @@ let window =
   ignore (Curses.noecho ());
   ignore (Curses.keypad w true);
   ignore (Curses.curs_set 0);
+  ignore (Curses.mousemask 0);
   (* Enable color mode *)
-  if Curses.has_colors () then (
-    ignore (Curses.start_color ());
-    (* Define color pairs *)
-    ignore (Curses.init_pair 1 Curses.Color.red Curses.Color.black);
-    (*curses colors intiialized here because this function is called in the
-      beginning. *)
-    ignore (Curses.init_pair 2 Curses.Color.green Curses.Color.black);
-    ignore (Curses.init_pair 3 Curses.Color.blue Curses.Color.black);
-    ignore (Curses.init_pair 4 Curses.Color.yellow Curses.Color.black);
-    ignore (Curses.init_pair 5 Curses.Color.cyan Curses.Color.black);
-    ignore (Curses.init_pair 6 Curses.Color.magenta Curses.Color.black));
+  if Curses.has_colors () then new_colors ();
   w
 
 (*let print_from_file path = BatEnum.iter print_endline (BatFile.lines_of
@@ -37,7 +39,7 @@ let room =
     | "empty" -> Room.load_room_from_file "data/rooms/empty.json"
     | _ -> Room.new_room ()
 
-let previous_direction = ref Room.Up
+let previous_direction = ref Keyboard.ArrowUp
 
 let move_player dir =
   Room.move_player room dir;
@@ -87,7 +89,6 @@ let handle_explosion () =
   while Room.exploding room do
     Room.explode room;
     print_room ();
-    flush stdout;
     Unix.sleepf 0.3
   done
 
@@ -95,16 +96,16 @@ let rec game_loop () =
   print_room ();
   let input = Input.read_input () in
   (match input with
-  | Input.ArrowUp -> move_player Room.Up
-  | Input.ArrowDown -> move_player Room.Down
-  | Input.ArrowRight -> move_player Room.Right
-  | Input.ArrowLeft -> move_player Room.Left
-  | Input.B -> Room.place_bomb room
-  | Input.E -> handle_explosion ()
-  | Input.Q ->
+  | Keyboard.ArrowUp -> move_player Keyboard.ArrowUp
+  | Keyboard.ArrowDown -> move_player Keyboard.ArrowDown
+  | Keyboard.ArrowRight -> move_player Keyboard.ArrowRight
+  | Keyboard.ArrowLeft -> move_player Keyboard.ArrowLeft
+  | Keyboard.B -> Room.place_bomb room
+  | Keyboard.E -> handle_explosion ()
+  | Keyboard.Q ->
       Curses.endwin ();
       exit 0
-  | Input.None -> ());
+  | Keyboard.None -> ());
   if Room.exploding room then
     while Room.exploding room do
       Room.explode room;

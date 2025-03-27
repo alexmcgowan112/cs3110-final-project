@@ -6,13 +6,6 @@ type coords = {
 }
 (** A location in 2D space *)
 
-(** A direction in 2D space *)
-type direction =
-  | Up
-  | Down
-  | Left
-  | Right
-
 val new_room : unit -> t
 (** [new_room ()] returns a new 11 by 11 room filled mostly with empty tiles and
     a few walls. *)
@@ -24,7 +17,7 @@ val load_room_from_file : string -> t
 (* TODO: It would probably make more sense to turn this into a take_action
    function, where there are actions avaliable besides just moving. This would
    require changing direction too.*)
-val move_player : t -> direction -> unit
+val move_player : t -> Keyboard.t -> unit
 (** [move_player room direction] attempts to move the player in [room]
     [direction]. The player will not move if they reach the edge of the room or
     if they run into a wall. *)
