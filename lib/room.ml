@@ -138,16 +138,16 @@ let place_bomb room =
 let move_player room direction =
   let x, y = (room.playerLoc.x, room.playerLoc.y) in
   (match direction with
-  | Keyboard.ArrowUp ->
+  | Keyboard.Up ->
       if y > 0 && room.tiles.(y - 1).(x) <> Wall then
         room.playerLoc <- { x; y = y - 1 }
-  | Keyboard.ArrowDown ->
+  | Keyboard.Down ->
       if y < Array.length room.tiles - 1 && room.tiles.(y + 1).(x) <> Wall then
         room.playerLoc <- { x; y = y + 1 }
-  | Keyboard.ArrowLeft ->
+  | Keyboard.Left ->
       if x > 0 && room.tiles.(y).(x - 1) <> Wall then
         room.playerLoc <- { x = x - 1; y }
-  | Keyboard.ArrowRight ->
+  | Keyboard.Right ->
       if x < Array.length room.tiles.(0) - 1 && room.tiles.(y).(x + 1) <> Wall
       then room.playerLoc <- { x = x + 1; y }
   | _ -> ());

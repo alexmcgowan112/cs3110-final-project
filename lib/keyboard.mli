@@ -1,14 +1,10 @@
 type t =
-  | ArrowUp
-  | ArrowDown
-  | ArrowLeft
-  | ArrowRight
+  | Up
+  | Down
+  | Left
+  | Right
   | B
   | Q
-  | W
-  | A
-  | S
-  | D
   | None
 
 module MakeInput : functor

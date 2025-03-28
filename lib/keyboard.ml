@@ -1,14 +1,10 @@
 type t =
-  | ArrowUp
-  | ArrowDown
-  | ArrowLeft
-  | ArrowRight
+  | Up
+  | Down
+  | Left
+  | Right
   | B
   | Q
-  | W
-  | A
-  | S
-  | D
   | None
 
 module MakeInput (G : sig
@@ -22,28 +18,24 @@ struct
       match G.get () with
       | 98 -> B
       | 113 -> Q
-      | 119 -> W
-      | 97 -> A
-      | 115 -> S
-      | 100 -> D
-      | code when code = Key.up -> ArrowUp
-      | code when code = Key.down -> ArrowDown
-      | code when code = Key.left -> ArrowLeft
-      | code when code = Key.right -> ArrowRight
+      | 119 -> Up (* W *)
+      | 97 -> Left (* A *)
+      | 115 -> Down (* S *)
+      | 100 -> Right (* D *)
+      | code when code = Key.up -> Up
+      | code when code = Key.down -> Down
+      | code when code = Key.left -> Left
+      | code when code = Key.right -> Right
       | _ -> None
     in
     result
 
   let string_of_input = function
-    | ArrowUp -> "Up"
-    | ArrowDown -> "Down"
-    | ArrowLeft -> "Left"
-    | ArrowRight -> "Right"
+    | Up -> "Up"
+    | Down -> "Down"
+    | Left -> "Left"
+    | Right -> "Right"
     | Q -> "Q"
     | B -> "B"
-    | W -> "W"
-    | A -> "A"
-    | S -> "S"
-    | D -> "D"
     | None -> "None"
 end
