@@ -33,10 +33,11 @@ let input_responses () =
   in
   helper curr_input out
 
-let default_room = Room.test_room ()
+let test_room () = Room.load_room_from_file "../data/rooms/simple.json"
+let default_room = test_room ()
 
 let run_inputs input_list =
-  let room = Room.test_room () in
+  let room = test_room () in
   let rec run_inputs_helper lst =
     match lst with
     | [] -> ()

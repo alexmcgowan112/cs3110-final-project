@@ -25,7 +25,7 @@ val move_player : t -> Keyboard.t -> unit
 val to_string : t -> string
 (** [to_string room] outputs a string representation of [room] *)
 
-val to_string_array : t -> string array array
+val to_string_matrix : t -> string array array
 (** [to_string_array room] outputs a string array array representation of [room]
 *)
 
@@ -47,7 +47,3 @@ val exploding : t -> bool
 
 val place_bomb : t -> unit
 (** [place_bomb room] creates a bomb at the player's current location. *)
-
-val test_room : unit -> t
-(** [test_room] returns the data/rooms/simple.json room (but can be called from
-    test_cs3110_final_project.ml)*)

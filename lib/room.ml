@@ -32,23 +32,27 @@ type t = {
     [playerLoc] is in bounds and is not inside of a wall tile. [explosion] is
     None if no explosion is currently happening. *)
 
+let string_to_tile = function
+  | "#" -> Wall
+  | _ -> Empty
+
+(** [json_to_tiles lst] turns a JSON string array array into an OCaml tile array
+    array using [string_to_tile]. *)
+let json_to_tiles lst =
+  lst |> Yojson.Safe.Util.to_list
+  |> List.map (fun row ->
+         row |> Yojson.Safe.Util.to_list
+         |> List.map (fun s -> Yojson.Safe.Util.to_string s |> string_to_tile)
+         |> Array.of_list)
+  |> Array.of_list
+
 let load_room_from_file filename =
   let get_from_json key =
     Yojson.Safe.from_file filename |> Yojson.Safe.Util.member key
   in
   let playerStartX = get_from_json "playerStartX" |> Yojson.Safe.Util.to_int in
   let playerStartY = get_from_json "playerStartY" |> Yojson.Safe.Util.to_int in
-  let tiles =
-    get_from_json "layout" |> Yojson.Safe.Util.to_list
-    |> List.map (fun row ->
-           row |> Yojson.Safe.Util.to_list
-           |> List.map (fun s ->
-                  match Yojson.Safe.Util.to_string s with
-                  | "#" -> Wall
-                  | _ -> Empty)
-           |> Array.of_list)
-    |> Array.of_list
-  in
+  let tiles = get_from_json "layout" |> json_to_tiles in
   if Array.exists (fun row -> Array.length row <> Array.length tiles.(0)) tiles
   then failwith "Layout isn't rectangular"
   else
@@ -60,7 +64,6 @@ let load_room_from_file filename =
     }
 
 let new_room () = load_room_from_file "data/rooms/simple.json"
-let test_room () = load_room_from_file "../data/rooms/simple.json"
 
 let tile_to_string = function
   | Empty -> "."
@@ -68,21 +71,7 @@ let tile_to_string = function
   | Exit -> "O"
   | Explosion _ -> "*"
 
-let to_string room =
-  let tiles = Array.map (fun row -> Array.map tile_to_string row) room.tiles in
-  List.iter
-    (fun { pos = { x; y }; fuse } -> tiles.(y).(x) <- string_of_int fuse)
-    room.bombs;
-  tiles.(room.playerLoc.y).(room.playerLoc.x) <- "@";
-  let row_to_string row =
-    Array.fold_left (fun acc s -> if acc = "" then s else acc ^ " " ^ s) "" row
-  in
-  Array.fold_left
-    (fun acc row ->
-      if acc = "" then row_to_string row else acc ^ "\n" ^ row_to_string row)
-    "" tiles
-
-let to_string_array room =
+let to_string_matrix room =
   let tiles = Array.map (fun row -> Array.map tile_to_string row) room.tiles in
   List.iter
     (fun { pos = { x; y }; fuse } -> tiles.(y).(x) <- string_of_int fuse)
@@ -90,7 +79,18 @@ let to_string_array room =
   tiles.(room.playerLoc.y).(room.playerLoc.x) <- "@";
   tiles
 
-let to_array room = room.tiles
+let str_matrix_to_string mat =
+  let row_to_string row =
+    Array.fold_left (fun acc s -> if acc = "" then s else acc ^ " " ^ s) "" row
+  in
+  Array.fold_left
+    (fun acc row ->
+      if acc = "" then row_to_string row else acc ^ "\n" ^ row_to_string row)
+    "" mat
+
+let to_string room = room |> to_string_matrix |> str_matrix_to_string
+
+(* let to_matrix room = Array.map Array.copy room.tiles *)
 let get_player_pos { playerLoc; _ } = playerLoc
 
 let manhattan_dist start_x start_y tile_x tile_y radius =

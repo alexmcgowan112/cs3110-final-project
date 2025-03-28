@@ -63,7 +63,8 @@ let print_string_array win (arr : string array array) =
 let print_room () =
   Curses.erase ();
   Curses.clearok window false;
-  ignore (print_string_array window (Room.to_string_array room));
+  (* ignore (Curses.mvwaddstr window 0 0 (Room.to_string room)); *)
+  ignore (print_string_array window (Room.to_string_matrix room));
   ignore (Curses.refresh ())
 
 let read_int_input prompt y x =
