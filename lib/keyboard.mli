@@ -5,6 +5,10 @@ type t =
   | ArrowRight
   | B
   | Q
+  | W
+  | A
+  | S
+  | D
   | None
 
 module MakeInput : functor

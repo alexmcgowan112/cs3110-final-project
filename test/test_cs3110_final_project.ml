@@ -43,10 +43,14 @@ let run_inputs input_list =
     | [] -> ()
     | input :: t ->
         (match input with
-        | Keyboard.ArrowUp -> Room.move_player room Keyboard.ArrowUp
-        | Keyboard.ArrowDown -> Room.move_player room Keyboard.ArrowDown
-        | Keyboard.ArrowRight -> Room.move_player room Keyboard.ArrowRight
-        | Keyboard.ArrowLeft -> Room.move_player room Keyboard.ArrowLeft
+        | Keyboard.ArrowUp | Keyboard.W ->
+            Room.move_player room Keyboard.ArrowUp
+        | Keyboard.ArrowDown | Keyboard.S ->
+            Room.move_player room Keyboard.ArrowDown
+        | Keyboard.ArrowRight | Keyboard.D ->
+            Room.move_player room Keyboard.ArrowRight
+        | Keyboard.ArrowLeft | Keyboard.A ->
+            Room.move_player room Keyboard.ArrowLeft
         | Keyboard.B -> Room.place_bomb room
         | Keyboard.Q ->
             Curses.endwin ();

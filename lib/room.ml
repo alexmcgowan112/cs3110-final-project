@@ -1,8 +1,3 @@
-type coords = {
-  x : int;
-  y : int;
-}
-
 type tile =
   | Empty
   | Wall
@@ -11,19 +6,18 @@ type tile =
 
 type explosion = {
   radius : int;
-  center_x : int;
-  center_y : int;
+  position : Coords.t;
   mutable curr_radius : int;
 }
 
 type bomb = {
-  pos : coords;
+  pos : Coords.t;
   mutable fuse : int;
 }
 
 type t = {
   mutable tiles : tile array array;
-  mutable playerLoc : coords;
+  mutable playerLoc : Coords.t;
   mutable explosion : explosion option;
   mutable bombs : bomb list;
 }
@@ -50,18 +44,17 @@ let load_room_from_file filename =
   let get_from_json key =
     Yojson.Safe.from_file filename |> Yojson.Safe.Util.member key
   in
-  let playerStartX = get_from_json "playerStartX" |> Yojson.Safe.Util.to_int in
-  let playerStartY = get_from_json "playerStartY" |> Yojson.Safe.Util.to_int in
+  let get_int_from_json key = get_from_json key |> Yojson.Safe.Util.to_int in
+  let playerLoc : Coords.t =
+    {
+      x = get_int_from_json "playerStartX";
+      y = get_int_from_json "playerStartY";
+    }
+  in
   let tiles = get_from_json "layout" |> json_to_tiles in
   if Array.exists (fun row -> Array.length row <> Array.length tiles.(0)) tiles
   then failwith "Layout isn't rectangular"
-  else
-    {
-      tiles;
-      playerLoc = { x = playerStartX; y = playerStartY };
-      explosion = None;
-      bombs = [];
-    }
+  else { tiles; playerLoc; explosion = None; bombs = [] }
 
 let new_room () = load_room_from_file "data/rooms/simple.json"
 
@@ -93,28 +86,21 @@ let to_string room = room |> to_string_matrix |> str_matrix_to_string
 (* let to_matrix room = Array.map Array.copy room.tiles *)
 let get_player_pos { playerLoc; _ } = playerLoc
 
-let manhattan_dist start_x start_y tile_x tile_y radius =
-  (* manhatten distance *)
-  abs (start_x - tile_x) + abs (start_y - tile_y) = radius
-
-let tile_is_exploding start_x start_y tile_x tile_y radius =
+let tile_is_exploding exp_coords tile_coords radius =
   (* euclidian distance *)
-  radius
-  = int_of_float
-      (ceil
-         (sqrt
-            (float_of_int
-               (((start_x - tile_x) * (start_x - tile_x))
-               + ((start_y - tile_y) * (start_y - tile_y))))
-         -. 0.5))
+  let distance = Coords.euclid_dist exp_coords tile_coords in
+  radius = int_of_float (ceil (distance -. 0.5))
 
-let update_explosion x y radius room =
+let update_explosion coords radius room =
   Array.iteri
     (fun curr_row_num curr_row ->
       Array.iteri
         (fun curr_col_num curr_tile ->
-          if tile_is_exploding x y curr_row_num curr_col_num radius then
-            room.(curr_row_num).(curr_col_num) <- Explosion curr_tile
+          if
+            tile_is_exploding coords
+              { x = curr_col_num; y = curr_row_num }
+              radius
+          then room.(curr_row_num).(curr_col_num) <- Explosion curr_tile
           else ())
         curr_row)
     room
@@ -135,23 +121,22 @@ let clear_explosion room =
 let explode room =
   match room.explosion with
   | Some explosion ->
-      update_explosion explosion.center_x explosion.center_y
-        explosion.curr_radius room.tiles;
+      update_explosion explosion.position explosion.curr_radius room.tiles;
       if explosion.curr_radius <= explosion.radius then
         explosion.curr_radius <- explosion.curr_radius + 1
       else clear_explosion room
   | None -> ()
 
-let start_exploding room center_x center_y radius =
-  room.explosion <- Some { radius; curr_radius = 0; center_x; center_y }
+let start_exploding room position radius =
+  room.explosion <- Some { radius; curr_radius = 0; position }
 
 let exploding room = room.explosion <> None
 
 let place_bomb room =
-  room.bombs <- { pos = room.playerLoc; fuse = 5 } :: room.bombs
+  room.bombs <- { pos = room.playerLoc; fuse = 6 } :: room.bombs
 
 let move_player room direction =
-  let { x; y } = room.playerLoc in
+  let x, y = (room.playerLoc.x, room.playerLoc.y) in
   (match direction with
   | Keyboard.ArrowUp ->
       if y > 0 && room.tiles.(y - 1).(x) <> Wall then
@@ -169,6 +154,6 @@ let move_player room direction =
   List.iter
     (fun b ->
       b.fuse <- b.fuse - 1;
-      if b.fuse = 0 then start_exploding room b.pos.y b.pos.x 3)
+      if b.fuse = 0 then start_exploding room b.pos 3)
     room.bombs;
   room.bombs <- List.filter (fun b -> b.fuse > 0) room.bombs

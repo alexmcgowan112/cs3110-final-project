@@ -5,6 +5,10 @@ type t =
   | ArrowRight
   | B
   | Q
+  | W
+  | A
+  | S
+  | D
   | None
 
 module MakeInput (G : sig
@@ -18,6 +22,10 @@ struct
       match G.get () with
       | 98 -> B
       | 113 -> Q
+      | 119 -> W
+      | 97 -> A
+      | 115 -> S
+      | 100 -> D
       | code when code = Key.up -> ArrowUp
       | code when code = Key.down -> ArrowDown
       | code when code = Key.left -> ArrowLeft
@@ -33,5 +41,9 @@ struct
     | ArrowRight -> "Right"
     | Q -> "Q"
     | B -> "B"
+    | W -> "W"
+    | A -> "A"
+    | S -> "S"
+    | D -> "D"
     | None -> "None"
 end
