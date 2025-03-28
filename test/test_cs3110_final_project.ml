@@ -4,13 +4,7 @@ open Cs3110_final_project
 module Input = Keyboard.MakeInput (struct
   let arr =
     [|
-      98;
-      113;
-      101;
-      Curses.Key.up;
-      Curses.Key.down;
-      Curses.Key.left;
-      Curses.Key.right;
+      98; 113; Curses.Key.up; Curses.Key.down; Curses.Key.left; Curses.Key.right;
     |]
 
   let ind = ref 0
@@ -56,8 +50,7 @@ let run_inputs input_list =
         | Keyboard.Q ->
             Curses.endwin ();
             exit 0
-        | Keyboard.None -> ()
-        | Keyboard.E -> ());
+        | Keyboard.None -> ());
         if Room.exploding room then
           while Room.exploding room do
             Room.explode room;
@@ -76,7 +69,6 @@ let tests =
              [
                Keyboard.B;
                Keyboard.Q;
-               Keyboard.E;
                Keyboard.ArrowUp;
                Keyboard.ArrowDown;
                Keyboard.ArrowLeft;

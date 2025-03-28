@@ -4,7 +4,6 @@ type t =
   | ArrowLeft
   | ArrowRight
   | B
-  | E
   | Q
   | None
 

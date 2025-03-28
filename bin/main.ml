@@ -1,9 +1,5 @@
 open Cs3110_final_project
 
-module Input = Keyboard.MakeInput (struct
-  let get = Curses.getch
-end)
-
 let new_colors () =
   ignore (Curses.start_color ());
   (* Define color pairs *)
@@ -31,6 +27,9 @@ let window =
 
 (*let print_from_file path = BatEnum.iter print_endline (BatFile.lines_of
   path)*)
+
+(** [room] is a new room by default, or the maze/empty room if those args are
+    given.*)
 let room =
   if Array.length Sys.argv = 1 then Room.new_room ()
   else
@@ -38,12 +37,6 @@ let room =
     | "maze" -> Room.load_room_from_file "data/rooms/maze.json"
     | "empty" -> Room.load_room_from_file "data/rooms/empty.json"
     | _ -> Room.new_room ()
-
-let previous_direction = ref Keyboard.ArrowUp
-
-let move_player dir =
-  Room.move_player room dir;
-  previous_direction := dir
 
 (*TODO: temporary function. modify when changing implementation in future*)
 let match_characters win i j = function
@@ -70,7 +63,6 @@ let print_string_array win (arr : string array array) =
 let print_room () =
   Curses.erase ();
   Curses.clearok window false;
-  (* ignore (Curses.mvwaddstr window 0 0 (Room.to_string room)); *)
   ignore (print_string_array window (Room.to_string_array room));
   ignore (Curses.refresh ())
 
@@ -97,57 +89,14 @@ let read_int_input prompt y x =
   ignore (Curses.noecho ());
   result
 
-let handle_explosion () =
-  let old_y, old_x = Curses.getyx window in
-
-  let max_y, _ = Curses.getmaxyx window in
-  let input_space = max_y - 4 in
-
-  let x_coord =
-    read_int_input "Enter x-coord (0,0 is top left): " input_space 0
-  in
-  let y_coord =
-    read_int_input "Enter y-coord (0,0 is top left): " (input_space + 1) 0
-  in
-  let radius = read_int_input "Enter explosion radius: " (input_space + 2) 0 in
-
-  ignore (Curses.move input_space 0);
-  Curses.clrtoeol ();
-  ignore (Curses.move (input_space + 1) 0);
-  Curses.clrtoeol ();
-  ignore (Curses.move (input_space + 2) 0);
-  Curses.clrtoeol ();
-
-  ignore (Curses.move old_y old_x);
-
-  Room.start_exploding room x_coord y_coord radius;
+let rec game_loop () =
+  print_room ();
+  Game.input_handling room;
   while Room.exploding room do
     Room.explode room;
     print_room ();
-    Unix.sleepf 0.3
-  done
-
-let rec game_loop () =
-  print_room ();
-  let input = Input.read_input () in
-  (match input with
-  | Keyboard.ArrowUp -> move_player Keyboard.ArrowUp
-  | Keyboard.ArrowDown -> move_player Keyboard.ArrowDown
-  | Keyboard.ArrowRight -> move_player Keyboard.ArrowRight
-  | Keyboard.ArrowLeft -> move_player Keyboard.ArrowLeft
-  | Keyboard.B -> Room.place_bomb room
-  | Keyboard.E -> handle_explosion ()
-  | Keyboard.Q ->
-      Curses.endwin ();
-      exit 0
-  | Keyboard.None -> ());
-  if Room.exploding room then
-    while Room.exploding room do
-      Room.explode room;
-      print_room ();
-      flush stdout;
-      Unix.sleepf 0.3
-    done;
+    Unix.sleepf 0.1
+  done;
   game_loop ()
 
 let () = game_loop ()
