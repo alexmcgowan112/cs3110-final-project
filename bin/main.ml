@@ -74,17 +74,52 @@ let print_room () =
   ignore (print_string_array window (Room.to_string_array room));
   ignore (Curses.refresh ())
 
+let read_int_input prompt y x =
+  ignore (Curses.move y x);
+  Curses.clrtoeol ();
+  ignore (Curses.addstr prompt);
+  ignore (Curses.echo ());
+  ignore (Curses.refresh ());
+
+  let buf = Buffer.create 10 in
+  let rec read_input () =
+    let ch = Curses.getch () in
+    if ch = Curses.Key.enter || ch = int_of_char '\n' || ch = int_of_char '\r'
+    then
+      if Buffer.length buf > 0 then int_of_string (Buffer.contents buf)
+      else read_input ()
+    else if ch >= int_of_char '0' && ch <= int_of_char '9' then (
+      Buffer.add_char buf (char_of_int ch);
+      read_input ())
+    else read_input ()
+  in
+  let result = read_input () in
+  ignore (Curses.noecho ());
+  result
+
 let handle_explosion () =
-  print_string "Enter the x-coord of the explosion center (top left is 0,0): ";
-  let x_coord = read_int () in
-  let () =
-    print_string "Enter the y-coord of the explosion center (top left is 0,0): "
+  let old_y, old_x = Curses.getyx window in
+
+  let max_y, _ = Curses.getmaxyx window in
+  let input_space = max_y - 4 in
+
+  let x_coord =
+    read_int_input "Enter x-coord (0,0 is top left): " input_space 0
   in
-  let y_coord = read_int () in
-  let () =
-    print_string "Enter the maximum radius of the explosion (in lines): "
+  let y_coord =
+    read_int_input "Enter y-coord (0,0 is top left): " (input_space + 1) 0
   in
-  let radius = read_int () in
+  let radius = read_int_input "Enter explosion radius: " (input_space + 2) 0 in
+
+  ignore (Curses.move input_space 0);
+  Curses.clrtoeol ();
+  ignore (Curses.move (input_space + 1) 0);
+  Curses.clrtoeol ();
+  ignore (Curses.move (input_space + 2) 0);
+  Curses.clrtoeol ();
+
+  ignore (Curses.move old_y old_x);
+
   Room.start_exploding room x_coord y_coord radius;
   while Room.exploding room do
     Room.explode room;
