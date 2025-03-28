@@ -1,6 +1,7 @@
 ### Lines of Code: 449/1600
 
-- Use `cloc --by-file --include-lang=OCaml .` to calculate this
+- Run `./updateLoC.sh` to update this
+- Alternatively, use `cloc --by-file --include-lang=OCaml .` to calculate this manually (make sure you run `dune clean` first)
 
 ## TODO:
 
