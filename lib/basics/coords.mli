@@ -1,4 +1,4 @@
-(** [Coord] is a module representing a coordinate in a 2D space. *)
+(** [Coords] is a module representing a coordinate in a 2D space. *)
 
 type t = {
   x : int;

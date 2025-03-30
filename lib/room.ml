@@ -67,7 +67,7 @@ let str_matrix_to_string mat =
 let to_string room = room |> to_string_matrix |> str_matrix_to_string
 let get_player_pos { playerLoc; _ } = playerLoc
 
-(* JSON Parsing and Room Creation *)
+(* Room Creation *)
 
 (** [json_to_tiles lst] turns a JSON string array array into an OCaml tile array
     array using [string_to_tile]. *)

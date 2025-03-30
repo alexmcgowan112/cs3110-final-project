@@ -52,13 +52,10 @@ let match_characters win i j = function
       ignore (Curses.attroff (Curses.A.color_pair 0))
 
 let print_string_array win (arr : string array array) =
-  let rows = Array.length arr in
-  let cols = if rows > 0 then Array.length arr.(0) else 0 in
-  for i = 0 to rows - 1 do
-    for j = 0 to cols - 1 do
-      match_characters win i (j * 2) arr.(i).(j)
-    done
-  done
+  Array.iteri
+    (fun i row ->
+      Array.iteri (fun j str -> match_characters win i (j * 2) str) row)
+    arr
 
 let print_room () =
   Curses.erase ();

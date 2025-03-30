@@ -1,4 +1,4 @@
-Use the arrow keys to move.
+Use the arrow keys or WASD to move.
 Press 'b' to place a bomb. 
 Press 'q' to exit.
 
