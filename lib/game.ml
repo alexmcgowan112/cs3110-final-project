@@ -4,13 +4,11 @@ end)
 
 let move_player room dir = Room.move_player room dir
 
-let rec input_handling room =
+let input_handling room =
   let input = Input.read_input () in
   match input with
-  | Keyboard.ArrowUp -> move_player room Keyboard.ArrowUp
-  | Keyboard.ArrowDown -> move_player room Keyboard.ArrowDown
-  | Keyboard.ArrowRight -> move_player room Keyboard.ArrowRight
-  | Keyboard.ArrowLeft -> move_player room Keyboard.ArrowLeft
+  | Keyboard.Up | Keyboard.Down | Keyboard.Right | Keyboard.Left ->
+      Room.move_player room input
   | Keyboard.B -> Room.place_bomb room
   | Keyboard.Q ->
       Curses.endwin ();

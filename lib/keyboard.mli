@@ -1,9 +1,9 @@
 (** The type [t] represents keyboard inputs. *)
 type t =
-  | ArrowUp
-  | ArrowDown
-  | ArrowLeft
-  | ArrowRight
+  | Up
+  | Down
+  | Left
+  | Right
   | B
   | Q
   | None

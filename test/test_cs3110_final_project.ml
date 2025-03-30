@@ -60,10 +60,8 @@ let run_inputs input_list =
     | [] -> ()
     | input :: t ->
         (match input with
-        | Keyboard.ArrowUp -> Room.move_player room Keyboard.ArrowUp
-        | Keyboard.ArrowDown -> Room.move_player room Keyboard.ArrowDown
-        | Keyboard.ArrowRight -> Room.move_player room Keyboard.ArrowRight
-        | Keyboard.ArrowLeft -> Room.move_player room Keyboard.ArrowLeft
+        | Keyboard.Up | Keyboard.Down | Keyboard.Right | Keyboard.Left ->
+            Room.move_player room input
         | Keyboard.B -> Room.place_bomb room
         | Keyboard.Q ->
             Curses.endwin ();
@@ -87,38 +85,33 @@ let tests =
              [
                Keyboard.B;
                Keyboard.Q;
-               Keyboard.ArrowUp;
-               Keyboard.ArrowDown;
-               Keyboard.ArrowLeft;
-               Keyboard.ArrowRight;
+               Keyboard.Up;
+               Keyboard.Down;
+               Keyboard.Left;
+               Keyboard.Right;
              ]
              (input_responses ())
              ~printer:(string_of_list Input.string_of_input) );
          ( "moving up moves player up" >:: fun _ ->
            assert_equal
-             (Room.get_player_pos (run_inputs [ Keyboard.ArrowUp ]))
+             (Room.get_player_pos (run_inputs [ Keyboard.Up ]))
              { x = 5; y = 4 } );
          ( "moving down moves player down" >:: fun _ ->
            assert_equal
-             (Room.get_player_pos (run_inputs [ Keyboard.ArrowDown ]))
+             (Room.get_player_pos (run_inputs [ Keyboard.Down ]))
              { x = 5; y = 6 } );
          ( "moving left moves player left" >:: fun _ ->
            assert_equal
-             (Room.get_player_pos (run_inputs [ Keyboard.ArrowLeft ]))
+             (Room.get_player_pos (run_inputs [ Keyboard.Left ]))
              { x = 4; y = 5 } );
          ( "moving right moves player right" >:: fun _ ->
            assert_equal
-             (Room.get_player_pos (run_inputs [ Keyboard.ArrowRight ]))
+             (Room.get_player_pos (run_inputs [ Keyboard.Right ]))
              { x = 6; y = 5 } );
          ( "running into a wall stops the player" >:: fun _ ->
            assert_equal
              (Room.get_player_pos
-                (run_inputs
-                   [
-                     Keyboard.ArrowRight;
-                     Keyboard.ArrowRight;
-                     Keyboard.ArrowRight;
-                   ]))
+                (run_inputs [ Keyboard.Right; Keyboard.Right; Keyboard.Right ]))
              { x = 7; y = 5 } );
        ]
 

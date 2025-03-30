@@ -1,11 +1,5 @@
 type t
 
-type coords = {
-  x : int;
-  y : int;
-}
-(** A location in 2D space *)
-
 val new_room : unit -> t
 (** [new_room ()] returns a new 11 by 11 room filled mostly with empty tiles and
     a few walls. *)
@@ -29,17 +23,12 @@ val to_string_matrix : t -> string array array
 (** [to_string_array room] outputs a string array array representation of [room]
 *)
 
-val get_player_pos : t -> coords
+val get_player_pos : t -> Coords.t
 (** [get_player_pos room] returns the player's position in room. *)
 
 val explode : t -> unit
-(** [explode room] updates a currently happening explosion in the current room.
-*)
-
-val start_exploding : t -> int -> int -> int -> unit
-(** [start_exploding room center_x center_y radius] starts an explosion centered
-    at ([center_x], [center_y]) that will grow to a maximum radius of [radius].
-*)
+(** [explode room] updates all currently happening explosions in the current
+    room. *)
 
 val exploding : t -> bool
 (** [exploding room] is whether or not an explosion is currently happening in
