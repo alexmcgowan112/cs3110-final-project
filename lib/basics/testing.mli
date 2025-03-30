@@ -1,11 +1,7 @@
 module TestInput : sig
   val read_input : unit -> Keyboard.t
-  (** [read_input] reads a keyboard input and returns its corresponding type
+  (** [read_input ()] reads a keyboard input and returns its corresponding type
       [t]. *)
-
-  val string_of_input : Keyboard.t -> string
-  (** [string_of_input] converts a keyboard input of type [t] to its string
-      representation. *)
 end
 
 val string_of_list : ('a -> string) -> 'a list -> string

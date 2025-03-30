@@ -8,6 +8,16 @@ type t =
   | None
   | Space
 
+let to_string = function
+  | Up -> "Up"
+  | Down -> "Down"
+  | Left -> "Left"
+  | Right -> "Right"
+  | Q -> "Q"
+  | B -> "B"
+  | Space -> "Space"
+  | None -> "None"
+
 module MakeInput (G : sig
   val get : unit -> int
 end) =
@@ -31,14 +41,4 @@ struct
       | _ -> None
     in
     result
-
-  let string_of_input = function
-    | Up -> "Up"
-    | Down -> "Down"
-    | Left -> "Left"
-    | Right -> "Right"
-    | Q -> "Q"
-    | B -> "B"
-    | Space -> "Space"
-    | None -> "None"
 end
