@@ -1,15 +1,17 @@
 open OUnit2
 open Cs3110_final_project
 
-module Input = Keyboard.MakeInput (struct
+module TestInput = Keyboard.MakeInput (struct
   (** [arr] is an array of integers representing a sequence of key codes. *)
   let arr =
     [|
       98; 113; Curses.Key.up; Curses.Key.down; Curses.Key.left; Curses.Key.right;
     |]
+
   (** [ind] is a reference to an integer that tracks the current index in the
       [arr] array. *)
   let ind = ref 0
+
   (** [get ()] retrieves the current key code from the [arr] array based on the
       index stored in [ind]. If the index is within bounds, it increments [ind]
       and returns the key code at the current index. If the index is out of
@@ -38,14 +40,18 @@ end)
 let string_of_list elem_to_string lst =
   "[" ^ List.fold_left (fun acc el -> elem_to_string el ^ ";" ^ acc) "]" lst
 
+(** [input_responses ()] reads a sequence of keyboard inputs until a the inputs
+    return Keyboard.None (indicating no further input). It uses a reference to
+    track the current input and collects the inputs in a list.
+
+    @return
+      A list of keyboard inputs read from the array in the above input module.
+*)
 let input_responses () =
-  let curr_input = ref (Input.read_input ()) in
+  let curr_input = TestInput.read_input () in
   let out = [] in
   let rec helper curr lst =
-    if !curr_input <> Keyboard.None then (
-      let v = !curr in
-      curr := Input.read_input ();
-      v :: helper curr lst)
+    if curr <> Keyboard.None then curr :: helper (TestInput.read_input ()) lst
     else lst
   in
   helper curr_input out
@@ -53,29 +59,12 @@ let input_responses () =
 let test_room () = Room.load_room_from_file "../data/rooms/simple.json"
 let default_room = test_room ()
 
-let run_inputs input_list =
-  let room = test_room () in
-  let rec run_inputs_helper lst =
-    match lst with
-    | [] -> ()
-    | input :: t ->
-        (match input with
-        | Keyboard.Up | Keyboard.Down | Keyboard.Right | Keyboard.Left ->
-            Room.move_player room input
-        | Keyboard.B -> Room.place_bomb room
-        | Keyboard.Q ->
-            Curses.endwin ();
-            exit 0
-        | Keyboard.None -> ());
-        if Room.exploding room then
-          while Room.exploding room do
-            Room.explode room;
-            Unix.sleepf 0.3
-          done;
-        run_inputs_helper t
-  in
-  run_inputs_helper input_list;
-  room
+let rec run_inputs input_list =
+  match input_list with
+  | [] -> default_room
+  | h :: t ->
+      Game.test_input_handling default_room h;
+      run_inputs t
 
 let tests =
   "test suite"
@@ -91,7 +80,7 @@ let tests =
                Keyboard.Right;
              ]
              (input_responses ())
-             ~printer:(string_of_list Input.string_of_input) );
+             ~printer:(string_of_list TestInput.string_of_input) );
          ( "moving up moves player up" >:: fun _ ->
            assert_equal
              (Room.get_player_pos (run_inputs [ Keyboard.Up ]))

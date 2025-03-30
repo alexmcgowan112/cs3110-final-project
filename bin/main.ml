@@ -92,12 +92,13 @@ let read_int_input prompt y x =
 
 let rec game_loop () =
   print_room ();
-  Game.input_handling room;
+  Game.handle_input room;
   while Room.exploding room do
     Room.explode room;
     print_room ();
     Unix.sleepf 0.1
   done;
+  Curses.flushinp ();
   game_loop ()
 
 let () = game_loop ()
