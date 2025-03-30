@@ -2,7 +2,7 @@ type t
 
 val create : Coords.t -> int -> t
 (** [create coords max_radius] creates a new explosion at the given coordinates
-    with a maximum potential radius of [max_radius]. *)
+    with a maximum potential radius of [max_radius]. [max_radius] must be > 0*)
 
 val spread : t -> unit
 (** [spread explosion] updates the explosion to spread to the next tile. If the

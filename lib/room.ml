@@ -112,6 +112,15 @@ let place_bomb room =
          room.bombs)
   then room.bombs <- { position = room.playerLoc; fuse = 6 } :: room.bombs
 
+let process_bombs room =
+  List.iter
+    (fun b ->
+      b.fuse <- b.fuse - 1;
+      if b.fuse = 0 then
+        room.explosions <- Explosion.create b.position 3 :: room.explosions)
+    room.bombs;
+  room.bombs <- List.filter (fun b -> b.fuse > 0) room.bombs
+
 let move_player room direction =
   let x, y = (room.playerLoc.x, room.playerLoc.y) in
   (match direction with
@@ -128,10 +137,6 @@ let move_player room direction =
       if x < Array.length room.tiles.(0) - 1 && room.tiles.(y).(x + 1) <> Wall
       then room.playerLoc <- { x = x + 1; y }
   | _ -> ());
-  List.iter
-    (fun b ->
-      b.fuse <- b.fuse - 1;
-      if b.fuse = 0 then
-        room.explosions <- Explosion.create b.position 3 :: room.explosions)
-    room.bombs;
-  room.bombs <- List.filter (fun b -> b.fuse > 0) room.bombs
+  process_bombs room
+
+let wait = process_bombs

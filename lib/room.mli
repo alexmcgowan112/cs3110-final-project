@@ -1,4 +1,5 @@
 type t
+(** The type of a room. *)
 
 val new_room : unit -> t
 (** [new_room ()] returns a new 11 by 11 room filled mostly with empty tiles and
@@ -15,6 +16,10 @@ val move_player : t -> Keyboard.t -> unit
 (** [move_player room direction] attempts to move the player in [room]
     [direction]. The player will not move if they reach the edge of the room or
     if they run into a wall. *)
+
+val wait : t -> unit
+(** [wait room] does nothing. It is used to update the room when the player is
+    not moving. *)
 
 val to_string : t -> string
 (** [to_string room] outputs a string representation of [room] *)

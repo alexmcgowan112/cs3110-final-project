@@ -6,6 +6,7 @@ type t =
   | B
   | Q
   | None
+  | Space
 
 module MakeInput (G : sig
   val get : unit -> int
@@ -22,6 +23,7 @@ struct
       | 97 -> Left (* A *)
       | 115 -> Down (* S *)
       | 100 -> Right (* D *)
+      | 32 -> Space (* Space *)
       | code when code = Key.up -> Up
       | code when code = Key.down -> Down
       | code when code = Key.left -> Left
@@ -37,5 +39,6 @@ struct
     | Right -> "Right"
     | Q -> "Q"
     | B -> "B"
+    | Space -> "Space"
     | None -> "None"
 end

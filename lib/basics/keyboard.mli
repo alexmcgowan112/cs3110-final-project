@@ -7,6 +7,7 @@ type t =
   | B
   | Q
   | None
+  | Space
 
 (** Functor [MakeInput] creates a module for handling keyboard input. *)
 module MakeInput : functor

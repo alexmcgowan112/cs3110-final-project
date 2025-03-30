@@ -11,6 +11,7 @@ let rec input_handling room input =
   | Keyboard.Right -> move_player room Keyboard.Right
   | Keyboard.Left -> move_player room Keyboard.Left
   | Keyboard.B -> Room.place_bomb room
+  | Keyboard.Space -> Room.wait room
   | Keyboard.Q ->
       Curses.endwin ();
       exit 0
