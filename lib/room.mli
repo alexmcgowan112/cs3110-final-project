@@ -10,8 +10,7 @@ val load_room_from_file : string -> t
     [filename]. *)
 
 val wait : t -> unit
-(** [wait room] does nothing. It is used to update the room when the player is
-    not moving. *)
+(** [wait room] advances time without moving the player. *)
 
 val move_player : t -> Keyboard.t -> unit
 (** [move_player room direction] attempts to move the player in [room]
@@ -19,18 +18,17 @@ val move_player : t -> Keyboard.t -> unit
     if they run into a wall. *)
 
 val explode : t -> unit
-(** [explode room] updates all currently happening explosions in the current
-    room. *)
+(** [explode room] updates all currently happening explosions in [room]. *)
 
 val exploding : t -> bool
 (** [exploding room] is whether or not an explosion is currently happening in
-    the provided room. *)
+    [room] *)
 
 val place_bomb : t -> unit
 (** [place_bomb room] creates a bomb at the player's current location. *)
 
 val get_player_pos : t -> Coords.t
-(** [get_player_pos room] returns the player's position in room. *)
+(** [get_player_pos room] returns the player's position in [room]. *)
 
 val to_string_matrix : t -> string array array
 (** [to_string_array room] outputs a string array array representation of [room]

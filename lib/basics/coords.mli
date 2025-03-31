@@ -1,12 +1,9 @@
-(** [Coords] is a module representing a coordinate in a 2D space. *)
-
 type t = {
   x : int;
   y : int;
 }
-(** [t] represents a coordinate in a 2D space with [x] and [y] coordinates. AF:
-    [{x; y}] represents a coordinate in a 2D space with [x] and [y] coordinates.
-    RI: [x] and [y] are non-negative integers. *)
+(** AF: [{x; y}] represents a coordinate in a 2D space with [x] and [y]
+    coordinates. RI: [x] and [y] are non-negative integers. *)
 
 val equal : t -> t -> bool
 (** [equal c1 c2] returns true if the coordinates [c1] and [c2] are equal. *)

@@ -1,4 +1,4 @@
-### Lines of Code: 484/1600
+### Lines of Code: 477/1600
 
 - Run `./updateLoC.sh` to update this
 - Alternatively, use `cloc --by-file --include-lang=OCaml .` to calculate this manually (make sure you run `dune clean` first)

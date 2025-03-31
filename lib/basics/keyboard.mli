@@ -1,4 +1,4 @@
-(** The type [t] represents keyboard inputs. *)
+(** [t] represents keyboard inputs. *)
 type t =
   | Up
   | Down
@@ -20,6 +20,5 @@ module MakeInput : functor
    end)
   -> sig
   val read_input : unit -> t
-  (** [read_input ()] reads a keyboard input and returns its corresponding type
-      [t]. *)
+  (** [read_input ()] reads a keyboard input and returns its. *)
 end
