@@ -93,7 +93,7 @@ let rec game_loop () =
   while Room.exploding room do
     Room.explode room;
     print_room ();
-    Unix.sleepf 0.1
+    Curses.napms 100
   done;
   Curses.flushinp ();
   game_loop ()

@@ -4,6 +4,32 @@ end)
 
 let move_player room dir = Room.move_player room dir
 
+let read_string () =
+  let rec loop buffer =
+    let ch = Curses.getch () in
+    match ch with
+    | 10 -> buffer (* Enter key pressed, return the input *)
+    | 127 | 8 ->
+        (* Handle backspace *)
+        let len = String.length buffer in
+        if len > 0 then loop (String.sub buffer 0 (len - 1)) else loop buffer
+    | _ -> loop (buffer ^ String.make 1 (Char.chr ch))
+  in
+  loop ""
+
+let command_palette room =
+  ignore (Curses.nocbreak ());
+  ignore (Curses.echo ());
+  ignore (Curses.addstr "\nCommand Palette: ");
+  let s = read_string () in
+  ignore (Curses.addstr s);
+  ignore (Curses.noecho ());
+  ignore (Curses.cbreak ());
+  ignore (Curses.getch ())
+(*Can't just remove this getch, as that means the refresh in the main print_room
+  function will wipe any output we give before it's really visible to the user,
+  so we have to block till they give input.*)
+
 let rec input_handling room input =
   match input with
   | Keyboard.Up -> move_player room Keyboard.Up
@@ -12,6 +38,7 @@ let rec input_handling room input =
   | Keyboard.Left -> move_player room Keyboard.Left
   | Keyboard.B -> Room.place_bomb room
   | Keyboard.Space -> Room.wait room
+  | Keyboard.Enter -> command_palette room
   | Keyboard.Q ->
       Curses.endwin ();
       exit 0

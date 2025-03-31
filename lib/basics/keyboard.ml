@@ -5,8 +5,9 @@ type t =
   | Right
   | B
   | Q
-  | None
   | Space
+  | Enter
+  | None
 
 let to_string = function
   | Up -> "Up"
@@ -16,6 +17,7 @@ let to_string = function
   | Q -> "Q"
   | B -> "B"
   | Space -> "Space"
+  | Enter -> "Enter"
   | None -> "None"
 
 module MakeInput (G : sig
@@ -34,6 +36,7 @@ struct
       | 115 -> Down (* S *)
       | 100 -> Right (* D *)
       | 32 -> Space (* Space *)
+      | 10 -> Enter (* Enter *)
       | code when code = Key.up -> Up
       | code when code = Key.down -> Down
       | code when code = Key.left -> Left

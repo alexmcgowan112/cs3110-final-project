@@ -6,8 +6,9 @@ type t =
   | Right
   | B
   | Q
-  | None
   | Space
+  | Enter
+  | None
 
 val to_string : t -> string
 (** [to_string input] converts [input] to its string representation. *)
