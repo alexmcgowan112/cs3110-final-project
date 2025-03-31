@@ -36,3 +36,10 @@ val to_string_matrix : t -> string array array
 
 val to_string : t -> string
 (** [to_string room] outputs a string representation of [room] *)
+
+val hud_text : t -> string
+(** [hud_text room] returns the text for the hud bar at the bottom of the room.*)
+
+val set_hud_text : t -> string -> unit
+(** [set_hud_text room text] sets the text for the hud bar at the bottom of the
+    room. *)

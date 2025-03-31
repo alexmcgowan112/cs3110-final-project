@@ -62,6 +62,7 @@ let print_room () =
   Curses.clearok window false;
   (* ignore (Curses.mvwaddstr window 0 0 (Room.to_string room)); *)
   ignore (print_string_array window (Room.to_string_matrix room));
+  ignore (Curses.addstr ("\n" ^ Room.hud_text room));
   ignore (Curses.refresh ())
 
 let read_int_input prompt y x =

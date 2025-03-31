@@ -18,14 +18,13 @@ let read_string () =
   loop ""
 
 let command_palette room =
+  Room.set_hud_text room "Command Palette: ";
   ignore (Curses.nocbreak ());
   ignore (Curses.echo ());
-  ignore (Curses.addstr "\nCommand Palette: ");
   let s = read_string () in
-  ignore (Curses.addstr s);
+  Room.set_hud_text room s;
   ignore (Curses.noecho ());
-  ignore (Curses.cbreak ());
-  ignore (Curses.getch ())
+  ignore (Curses.cbreak ())
 (*Can't just remove this getch, as that means the refresh in the main print_room
   function will wipe any output we give before it's really visible to the user,
   so we have to block till they give input.*)
