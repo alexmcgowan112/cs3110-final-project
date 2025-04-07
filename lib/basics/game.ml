@@ -22,7 +22,10 @@ let command_palette room =
   ignore (Curses.nocbreak ());
   ignore (Curses.echo ());
   let s = read_string () in
-  Room.set_hud_text room s;
+  Room.set_hud_text room
+    (if s = "help" then
+       String.concat "\n" (BatList.of_enum (BatFile.lines_of "data/help.txt"))
+     else s);
   ignore (Curses.noecho ());
   ignore (Curses.cbreak ())
 (*Can't just remove this getch, as that means the refresh in the main print_room

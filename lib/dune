@@ -1,4 +1,5 @@
 (library
  (name cs3110_final_project)
- (libraries curses yojson))
- (include_subdirs unqualified)
+ (libraries curses yojson batteries))
+
+(include_subdirs unqualified)
