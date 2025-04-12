@@ -35,14 +35,13 @@ let input_responses () =
   in
   helper curr_input out
 
-let test_room () = Room.load_room_from_file "../data/rooms/simple.json"
-
 let run_inputs input_list =
-  let default_room = test_room () in
+  let default_dunegon = Dungeon.create_test () in 
+  let default_room = Dungeon.current_room (default_dunegon) in
   let rec helper = function
     | [] -> default_room
     | h :: t ->
-        Game.test_input_handling default_room h;
+        Game.test_input_handling default_dunegon h;
         helper t
   in
   helper input_list

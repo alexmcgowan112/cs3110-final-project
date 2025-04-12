@@ -28,15 +28,7 @@ let window =
 (*let print_from_file path = BatEnum.iter print_endline (BatFile.lines_of
   path)*)
 
-(** [room] is a new room by default, or the maze/empty room if those args are
-    given.*)
-let room =
-  if Array.length Sys.argv = 1 then Room.new_room ()
-  else
-    match Sys.argv.(1) with
-    | "maze" -> Room.load_room_from_file "data/rooms/maze.json"
-    | "empty" -> Room.load_room_from_file "data/rooms/empty.json"
-    | _ -> Room.new_room ()
+let dungeon = Dungeon.create ()
 
 (*TODO: temporary function. modify when changing implementation in future*)
 let match_characters win i j = function
@@ -57,12 +49,14 @@ let print_string_array win (arr : string array array) =
       Array.iteri (fun j str -> match_characters win i (j * 2) str) row)
     arr
 
-let print_room () =
+let print_current_room () =
   Curses.erase ();
   Curses.clearok window false;
   (* ignore (Curses.mvwaddstr window 0 0 (Room.to_string room)); *)
-  ignore (print_string_array window (Room.to_string_matrix room));
-  ignore (Curses.addstr ("\n" ^ Room.hud_text room));
+  ignore
+    (print_string_array window
+       (Room.to_string_matrix (Dungeon.current_room dungeon)));
+  ignore (Curses.addstr ("\n" ^ Room.hud_text (Dungeon.current_room dungeon)));
   ignore (Curses.refresh ())
 
 let read_int_input prompt y x =
@@ -89,11 +83,11 @@ let read_int_input prompt y x =
   result
 
 let rec game_loop () =
-  print_room ();
-  Game.handle_input room;
-  while Room.exploding room do
-    Room.explode room;
-    print_room ();
+  print_current_room ();
+  Game.handle_input dungeon;
+  while Room.exploding (Dungeon.current_room dungeon) do
+    Room.explode (Dungeon.current_room dungeon);
+    print_current_room ();
     Curses.napms 100
   done;
   Curses.flushinp ();
