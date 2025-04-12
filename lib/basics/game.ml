@@ -50,9 +50,13 @@ let handle_input dungeon =
   let input = Input.read_input () in
   input_handling dungeon input
 
+let update_enemies () = 
+  ()
+
 let process_world dungeon =
   (*main game loop*)
   handle_input dungeon;
-  Room.explode (Dungeon.current_room dungeon)
+  Room.explode (Dungeon.current_room dungeon);
+  update_enemies ()
 
 let test_input_handling = input_handling
