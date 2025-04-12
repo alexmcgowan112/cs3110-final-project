@@ -1,3 +1,9 @@
 Use the arrow keys or WASD to move.
 Press 'b' to place a bomb. 
 Press 'q' to exit.
+
+. is an empty tile
+# is a wall
+O is a door to another room
+Numbers represent bombs (and how long until they explode)
+* is an exploding tile

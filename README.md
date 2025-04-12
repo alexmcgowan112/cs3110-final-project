@@ -6,7 +6,8 @@
 ## TODO:
 
 - Tests (these should be 33-66% of our lines of code)
-- Move between different rooms
+- Bombs affect you, enemies, and maybe the environment (special breakable wall type maybe?)
+- Bombs spread with movement timesteps
 - Items that can be interacted with
 - Enemies
 - (Stretch Goal) Random level generation
