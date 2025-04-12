@@ -30,6 +30,11 @@ val place_bomb : t -> unit
 val get_player_pos : t -> Coords.t
 (** [get_player_pos room] returns the player's position in [room]. *)
 
+val set_player_pos : t -> Coords.t -> unit
+(** [set_player_pos room location] puts the player in the given room at the
+    given location. This is used by the dungeon to move players between rooms.
+*)
+
 val to_string_matrix : t -> string array array
 (** [to_string_array room] outputs a string array array representation of [room]
 *)

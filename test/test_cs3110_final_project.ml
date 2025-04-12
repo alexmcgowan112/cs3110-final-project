@@ -6,8 +6,8 @@ let make_movement_test direction expected =
   let dir_str = Keyboard.to_string direction |> String.lowercase_ascii in
   "moving " ^ dir_str ^ " moves player " ^ dir_str >:: fun _ ->
   assert_equal
-    (Room.get_player_pos (run_inputs [ direction ]))
-    expected ~cmp:Coords.equal ~printer:Coords.to_string
+  expected (Room.get_player_pos (run_inputs [ direction ]))
+     ~cmp:Coords.equal ~printer:Coords.to_string
 
 let tests =
   "test suite"

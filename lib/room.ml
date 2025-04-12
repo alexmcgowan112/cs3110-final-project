@@ -23,6 +23,7 @@ type t = {
 (* Utility Functions *)
 let char_to_tile = function
   | '#' -> Wall
+  | 'O' -> Exit
   | _ -> Empty
 
 let tile_to_string = function
@@ -151,3 +152,6 @@ let set_hud_text room text =
   Curses.clrtoeol ();
   ignore (Curses.addstr text);
   ignore (Curses.refresh ())
+
+let set_player_pos room loc = room.playerLoc <- loc
+(* TODO add check that new location is valid *)
