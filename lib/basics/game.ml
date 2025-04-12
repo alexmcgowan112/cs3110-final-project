@@ -50,4 +50,9 @@ let handle_input dungeon =
   let input = Input.read_input () in
   input_handling dungeon input
 
-let test_input_handling = input_handling 
+let process_world dungeon =
+  (*main game loop*)
+  handle_input dungeon;
+  Room.explode (Dungeon.current_room dungeon)
+
+let test_input_handling = input_handling

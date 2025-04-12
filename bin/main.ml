@@ -84,12 +84,7 @@ let read_int_input prompt y x =
 
 let rec game_loop () =
   print_current_room ();
-  Game.handle_input dungeon;
-  while Room.exploding (Dungeon.current_room dungeon) do
-    Room.explode (Dungeon.current_room dungeon);
-    print_current_room ();
-    Curses.napms 100
-  done;
+  Game.process_world dungeon;
   Curses.flushinp ();
   game_loop ()
 
