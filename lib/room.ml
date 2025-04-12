@@ -21,8 +21,8 @@ type t = {
     None if no explosion is currently happening. *)
 
 (* Utility Functions *)
-let string_to_tile = function
-  | "#" -> Wall
+let char_to_tile = function
+  | '#' -> Wall
   | _ -> Empty
 
 let tile_to_string = function
@@ -68,17 +68,16 @@ let str_matrix_to_string mat =
 let to_string room = room |> to_string_matrix |> str_matrix_to_string
 let get_player_pos { playerLoc; _ } = playerLoc
 
+let read_file_to_tiles file =
+  let str_list =
+    let contents = In_channel.with_open_bin file In_channel.input_all in
+    String.split_on_char '\n' contents
+  in
+  Array.map
+    (fun s ->
+      Array.init (String.length s) (fun i -> char_to_tile (String.get s i)))
+    (Array.of_list str_list)
 (* Room Creation *)
-
-(** [json_to_tiles lst] turns a JSON string array array into an OCaml tile array
-    array using [string_to_tile]. *)
-let json_to_tiles lst =
-  lst |> Yojson.Safe.Util.to_list
-  |> List.map (fun row ->
-         row |> Yojson.Safe.Util.to_list
-         |> List.map (fun s -> Yojson.Safe.Util.to_string s |> string_to_tile)
-         |> Array.of_list)
-  |> Array.of_list
 
 let load_room_from_file filename =
   let get_from_json key =
@@ -91,7 +90,9 @@ let load_room_from_file filename =
       y = get_int_from_json "playerStartY";
     }
   in
-  let tiles = get_from_json "layout" |> json_to_tiles in
+  let tiles =
+    Yojson.Safe.Util.to_string (get_from_json "layout") |> read_file_to_tiles
+  in
   if Array.exists (fun row -> Array.length row <> Array.length tiles.(0)) tiles
   then failwith "Layout isn't rectangular"
   else { tiles; playerLoc; explosions = []; bombs = []; hud_text = "Welcome." }
