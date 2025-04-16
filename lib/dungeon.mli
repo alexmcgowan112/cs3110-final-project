@@ -15,3 +15,11 @@ val current_room : t -> Room.t
 val move_player : t -> Keyboard.t -> unit
 (** [move_player dungeon direction] moves the player in the given direction
     inside the given dungeon. *)
+
+val hud_text : t -> string
+(** [hud_text dungeon] returns the text for the hud bar at the bottom of the
+    screen.*)
+
+val set_hud_text : t -> string -> unit
+(** [set_hud_text dungeon text] sets the text for the hud bar at the bottom of
+    the screen. *)

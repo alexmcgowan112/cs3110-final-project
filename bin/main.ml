@@ -56,7 +56,7 @@ let print_current_room () =
   ignore
     (print_string_array window
        (Room.to_string_matrix (Dungeon.current_room dungeon)));
-  ignore (Curses.addstr ("\n" ^ Room.hud_text (Dungeon.current_room dungeon)));
+  ignore (Curses.addstr ("\n" ^ Dungeon.hud_text dungeon));
   ignore (Curses.refresh ())
 
 let read_int_input prompt y x =

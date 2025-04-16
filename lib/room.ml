@@ -13,7 +13,6 @@ type t = {
   mutable playerLoc : Coords.t;
   mutable explosions : Explosion.t list;
   mutable bombs : bomb list;
-  mutable hud_text : string;
 }
 (** AF: [{tiles; playerLoc; explosion}] represents a room with [tiles], a player
     at [playerLoc] and a (potential) current explosion [explosion]. RI:
@@ -96,7 +95,7 @@ let load_room_from_file filename =
   in
   if Array.exists (fun row -> Array.length row <> Array.length tiles.(0)) tiles
   then failwith "Layout isn't rectangular"
-  else { tiles; playerLoc; explosions = []; bombs = []; hud_text = "Welcome." }
+  else { tiles; playerLoc; explosions = []; bombs = [] }
 
 let new_room () = load_room_from_file "data/rooms/simple.json"
 
@@ -143,15 +142,5 @@ let move_player room direction =
   process_bombs room
 
 let wait = process_bombs
-let hud_text room = room.hud_text
-
-let set_hud_text room text =
-  room.hud_text <- text;
-  let y, x = Curses.getyx (Curses.stdscr ()) in
-  ignore (Curses.move y 0);
-  Curses.clrtoeol ();
-  ignore (Curses.addstr text);
-  ignore (Curses.refresh ())
-
 let set_player_pos room loc = room.playerLoc <- loc
 (* TODO add check that new location is valid *)

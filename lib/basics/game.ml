@@ -18,19 +18,20 @@ let read_string () =
   loop ""
 
 let command_palette room =
-  Room.set_hud_text room "Command Palette: ";
+  Dungeon.set_hud_text room "Command Palette: ";
   ignore (Curses.nocbreak ());
   ignore (Curses.echo ());
   let s = read_string () in
-  Room.set_hud_text room
-    (if s = "help" then
-       String.concat "\n" (BatList.of_enum (BatFile.lines_of "data/help.txt"))
-     else s);
+  Dungeon.set_hud_text room
+    (match s with
+    | "help" ->
+        String.concat "\n" (BatList.of_enum (BatFile.lines_of "data/help.txt"))
+    | "quit" ->
+        Curses.endwin ();
+        exit 0
+    | _ -> s);
   ignore (Curses.noecho ());
   ignore (Curses.cbreak ())
-(*Can't just remove this getch, as that means the refresh in the main print_room
-  function will wipe any output we give before it's really visible to the user,
-  so we have to block till they give input.*)
 
 let rec input_handling dungeon input =
   match input with
@@ -40,7 +41,7 @@ let rec input_handling dungeon input =
   | Keyboard.Left -> move_player dungeon Keyboard.Left
   | Keyboard.B -> Room.place_bomb (Dungeon.current_room dungeon)
   | Keyboard.Space -> Room.wait (Dungeon.current_room dungeon)
-  | Keyboard.Enter -> command_palette (Dungeon.current_room dungeon)
+  | Keyboard.Enter -> command_palette dungeon
   | Keyboard.Q ->
       Curses.endwin ();
       exit 0
@@ -50,8 +51,7 @@ let handle_input dungeon =
   let input = Input.read_input () in
   input_handling dungeon input
 
-let update_enemies () = 
-  ()
+let update_enemies () = ()
 
 let process_world dungeon =
   (*main game loop*)

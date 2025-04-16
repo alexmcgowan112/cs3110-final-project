@@ -19,6 +19,7 @@ type dungeon_room = {
 type t = {
   rooms : dungeon_room Array.t;
   mutable current_room : int;
+  mutable hud_text : string;
 }
 
 (* How are dungeons stored right now? *)
@@ -62,11 +63,23 @@ let load_dungeon_from_file filename =
   in
   let current_room = get_int_from_json "current_room" in
   let rooms = get_from_json filename "rooms" |> json_to_dungeon_rooms in
-  { rooms; current_room }
+  {
+    rooms;
+    current_room;
+    hud_text = "Welcome. Press Enter to open command palette.";
+  }
 
 let create () = load_dungeon_from_file "data/dungeons/simple.json"
 let create_test () = load_dungeon_from_file "../data/dungeons/test.json"
 let current_room dungeon = dungeon.rooms.(dungeon.current_room).room
+
+let set_hud_text dungeon text =
+  dungeon.hud_text <- text;
+  let y, x = Curses.getyx (Curses.stdscr ()) in
+  ignore (Curses.move y 0);
+  Curses.clrtoeol ();
+  ignore (Curses.addstr text);
+  ignore (Curses.refresh ())
 
 (*TODO make sure the location after the move is still in bounds of room*)
 (* For a given room and a direction that the player will move in, this function 
@@ -74,12 +87,12 @@ checks the player's position in the room and calculates if this move will put
   the player on an exit (i.e. if the dungeon will need to switch the player 
     to a new room). If this move leads to an exit, the function returns an 
 option with the corresponding exit in the new room. If not, it returns None. *)
-let will_this_move_lead_to_an_exit room dir =
+let will_this_move_lead_to_an_exit dungeon dir =
   let () =
-    Room.set_hud_text room.room
-      (Coords.to_string (Room.get_player_pos room.room))
+    set_hud_text dungeon
+      (Coords.to_string (Room.get_player_pos (current_room dungeon)))
   in
-  let pos = Room.get_player_pos room.room in
+  let pos = Room.get_player_pos (current_room dungeon) in
   let (pos_after_move : Coords.t) =
     match dir with
     | Keyboard.Up -> { x = pos.x; y = pos.y - 1 }
@@ -89,7 +102,9 @@ let will_this_move_lead_to_an_exit room dir =
     | _ -> failwith "invalid keyboard input to calculate move with"
   in
   let matching_exits =
-    List.filter (fun curr_exit -> curr_exit.coords = pos_after_move) room.exits
+    List.filter
+      (fun curr_exit -> curr_exit.coords = pos_after_move)
+      dungeon.rooms.(dungeon.current_room).exits
   in
   if List.length matching_exits = 1 then Some (List.hd matching_exits) else None
 (* TODO add check if matching_exits len != 1? *)
@@ -104,7 +119,7 @@ let get_pos_in_new_room old_room_num new_room =
 
 let move_player dungeon direction =
   let curr_room = dungeon.rooms.(dungeon.current_room) in
-  match will_this_move_lead_to_an_exit curr_room direction with
+  match will_this_move_lead_to_an_exit dungeon direction with
   | None -> Room.move_player curr_room.room direction
   | Some exit ->
       let old_room_num = dungeon.current_room in
@@ -112,3 +127,5 @@ let move_player dungeon direction =
       Room.set_player_pos dungeon.rooms.(dungeon.current_room).room
         (get_pos_in_new_room old_room_num dungeon.rooms.(dungeon.current_room))
 (* TODO add check that the new position is correct? *)
+
+let hud_text dungeon = dungeon.hud_text
