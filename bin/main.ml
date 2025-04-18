@@ -31,31 +31,29 @@ let window =
 let dungeon = Dungeon.create ()
 
 (*TODO: temporary function. modify when changing implementation in future*)
-let match_characters win i j = function
+let match_characters i j = function
   | "*" ->
       ignore (Curses.attron (Curses.A.color_pair 1));
       (*If you need to do stuff, change this # ^*)
-      ignore (Curses.mvwaddstr win i j "*");
+      ignore (Curses.mvaddstr i j "*");
       ignore (Curses.attroff (Curses.A.color_pair 1))
   | x ->
       ignore (Curses.attron (Curses.A.color_pair 0));
       (*0 is default, the rest match the indexes up top. ctrl+F for init_pair*)
-      ignore (Curses.mvwaddstr win i j x);
+      ignore (Curses.mvaddstr i j x);
       ignore (Curses.attroff (Curses.A.color_pair 0))
 
-let print_string_array win (arr : string array array) =
+let print_string_colors string_matrix =
   Array.iteri
-    (fun i row ->
-      Array.iteri (fun j str -> match_characters win i (j * 2) str) row)
-    arr
+    (fun i row -> Array.iteri (fun j str -> match_characters i (j * 2) str) row)
+    string_matrix
 
 let print_current_room () =
   Curses.erase ();
   Curses.clearok window false;
   (* ignore (Curses.mvwaddstr window 0 0 (Room.to_string room)); *)
   ignore
-    (print_string_array window
-       (Room.to_string_matrix (Dungeon.current_room dungeon)));
+    (print_string_colors (Room.to_string_matrix (Dungeon.current_room dungeon)));
   ignore (Curses.addstr ("\n" ^ Dungeon.hud_text dungeon));
   ignore (Curses.refresh ())
 

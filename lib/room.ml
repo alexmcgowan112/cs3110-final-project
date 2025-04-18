@@ -56,16 +56,6 @@ let to_string_matrix room =
     (fun y row -> Array.mapi (fun x _ -> coords_to_string room { x; y }) row)
     room.tiles
 
-let str_matrix_to_string mat =
-  let row_to_string row =
-    Array.fold_left (fun acc s -> if acc = "" then s else acc ^ " " ^ s) "" row
-  in
-  Array.fold_left
-    (fun acc row ->
-      if acc = "" then row_to_string row else acc ^ "\n" ^ row_to_string row)
-    "" mat
-
-let to_string room = room |> to_string_matrix |> str_matrix_to_string
 let get_player_pos { playerLoc; _ } = playerLoc
 
 let read_file_to_tiles file =

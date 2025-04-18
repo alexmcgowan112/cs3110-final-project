@@ -36,8 +36,5 @@ val set_player_pos : t -> Coords.t -> unit
 *)
 
 val to_string_matrix : t -> string array array
-(** [to_string_array room] outputs a string array array representation of [room]
-*)
-
-val to_string : t -> string
-(** [to_string room] outputs a string representation of [room] *)
+(** [to_string_matrix room] outputs a string representation of [room] as a
+    matrix. Each tile is represented by a single character. *)
