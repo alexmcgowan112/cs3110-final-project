@@ -89,7 +89,7 @@ checks the player's position in the room and calculates if this move will put
 option with the corresponding exit in the new room. If not, it returns None. *)
 let will_this_move_lead_to_an_exit dungeon dir =
   let () =
-    set_hud_text dungeon
+    set_hud_text dungeon (**are we setting HUD text before we move the player?*)
       (Coords.to_string (Room.get_player_pos (current_room dungeon)))
   in
   let pos = Room.get_player_pos (current_room dungeon) in
