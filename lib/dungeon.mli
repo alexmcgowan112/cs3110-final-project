@@ -5,6 +5,8 @@ val create : unit -> t
 (** [create ()] is a new dungeon. It currently has 2 rooms and one exit
     connecting each room. *)
 
+val load_dungeon_from_file : string -> t
+
 val create_test : unit -> t
 (** [create_test ()] is a new dungeon to use for testing. *)
 

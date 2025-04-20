@@ -1,5 +1,5 @@
 {
   "playerStartX": 5,
   "playerStartY": 5,
-  "layout": "data/rooms/maze.rm"
+  "layout": "data/rooms/test_rooms/maze.rm"
 }

@@ -1,0 +1,70 @@
+{
+  "rooms": [
+    {
+      "room_file": "data/rooms/medium_dungeon/start.json",
+      "exits": [
+        {
+          "x_coord": 5,
+          "y_coord": 0,
+          "to_room": 1
+        }
+      ]
+    },
+    {
+      "room_file": "data/rooms/medium_dungeon/crossroad.json",
+      "exits": [
+        {
+          "x_coord": 7,
+          "y_coord": 12,
+          "to_room": 0
+        },
+        {
+          "x_coord": 7,
+          "y_coord": 0,
+          "to_room": 2
+        },
+        {
+          "x_coord": 0,
+          "y_coord": 6,
+          "to_room": 3
+        },
+        {
+          "x_coord": 14,
+          "y_coord": 6,
+          "to_room": 4
+        }
+      ]
+    },
+    {
+      "room_file": "data/rooms/medium_dungeon/big_circle.json",
+      "exits": [
+        {
+          "x_coord": 17,
+          "y_coord": 34,
+          "to_room": 1
+        }
+      ]
+    },
+    {
+      "room_file": "data/rooms/test_rooms/maze.json",
+      "exits": [
+        {
+          "x_coord": 9,
+          "y_coord": 9,
+          "to_room": 1
+        }
+      ]
+    },
+    {
+      "room_file": "data/rooms/test_rooms/simple.json",
+      "exits": [
+        {
+          "x_coord": 5,
+          "y_coord": 0,
+          "to_room": 1
+        }
+      ]
+    }
+  ],
+  "current_room": 1
+}

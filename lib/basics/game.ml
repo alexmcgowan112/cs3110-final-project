@@ -52,13 +52,14 @@ let handle_input dungeon =
   input_handling dungeon input
 
 let update_enemies () = ()
+let damage_player () = failwith "TODO"
 
 let process_world dungeon =
   (*main game loop*)
   handle_input dungeon;
   Room.explode (Dungeon.current_room dungeon);
   update_enemies ();
-  Dungeon.set_hud_text dungeon (Coords.to_string (Room.get_player_pos (Dungeon.current_room dungeon)))
-
+  Dungeon.set_hud_text dungeon
+    (Coords.to_string (Room.get_player_pos (Dungeon.current_room dungeon)))
 
 let test_input_handling = input_handling

@@ -1,21 +1,25 @@
 {
-    "rooms" : [
+  "rooms": [
+    {
+      "room_file": "../data/rooms/test_rooms/simple.json",
+      "exits": [
         {
-            "room_file" : "../data/rooms/simple.json",
-            "exits": [{
-                "x_coord" : 5,
-                "y_coord" : 0,
-                "to_room" : 1
-            }]
-        },
-        {
-            "room_file" : "../data/rooms/maze.json",
-            "exits": [{
-                "x_coord" : 9,
-                "y_coord" : 9,
-                "to_room" : 0
-            }]
+          "x_coord": 5,
+          "y_coord": 0,
+          "to_room": 1
         }
-    ],
-    "current_room" : 0
+      ]
+    },
+    {
+      "room_file": "../data/rooms/test_rooms/maze.json",
+      "exits": [
+        {
+          "x_coord": 9,
+          "y_coord": 9,
+          "to_room": 0
+        }
+      ]
+    }
+  ],
+  "current_room": 0
 }

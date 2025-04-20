@@ -28,7 +28,7 @@ let window =
 (*let print_from_file path = BatEnum.iter print_endline (BatFile.lines_of
   path)*)
 
-let dungeon = Dungeon.create ()
+let dungeon = Dungeon.load_dungeon_from_file "data/dungeons/medium.json"
 
 (*TODO: temporary function. modify when changing implementation in future*)
 let match_characters i j = function
