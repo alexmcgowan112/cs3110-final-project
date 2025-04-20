@@ -1,5 +1,5 @@
 {
   "playerStartX": 5,
-  "playerStartY": 7,
+  "playerStartY": 6,
   "layout": "data/rooms/medium_dungeon/start.rm"
 }
