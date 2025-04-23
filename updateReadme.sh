@@ -2,37 +2,26 @@
 
 dune clean
 
+# Count the lines of OCaml code in the project using cloc and extract the total.
 LOC=$(cloc --by-file --include-lang=OCaml . | awk '/SUM:/ {print $NF}')
 
 echo "The project now has $LOC lines of code."
 
-# Update the first line of README.md with lines of code
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS: Requires an empty string after -i
-    sed -i '' "1s|.*|### Lines of Code: $LOC/1600|" README.md
-else
-    # Linux: Standard GNU sed
-    sed -i "1s|.*|### Lines of Code: $LOC/1600|" README.md
-fi
+# Replace the "Lines of Code" line in README.md with the updated count.
+perl -pi -e 's|^### Lines of Code:.*|### Lines of Code: '"$LOC"'/1600|' README.md
 
-# Run tests with bisect_ppx and generate the coverage report
+# Run tests with bisect and generate the coverage report
 dune test --instrument-with bisect_ppx --force && bisect-ppx-report html
 if [[ "$1" != "--no-gui" && "$1" != "-n" ]]; then
     open _coverage/index.html
 fi
 
 # Extract the coverage percentage from the generated index.html
-COVERAGE=$(perl -nle 'print $1 if /<meta name="description" content="([0-9.]+)% coverage overall"/' _coverage/index.html)
+COVERAGE=$(awk -F'[<>]' '/<h2>[0-9.]+%<\/h2>/ {print $3}' _coverage/index.html)
 
-echo "The project now has $COVERAGE% test coverage."
+echo "The project now has $COVERAGE test coverage."
 
-# Update the second line of README.md with the coverage percentage
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS: Requires an empty string after -i
-    sed -i '' "3s|.*|### Coverage: $COVERAGE%/80%|" README.md
-else
-    # Linux: Standard GNU sed
-    sed -i "3s|.*|### Coverage: $COVERAGE%/80%|" README.md
-fi
+# Replace the "Coverage" line in README.md with the updated percentage.
+perl -pi -e 's|^### Coverage:.*|### Coverage: '"$COVERAGE"'/80%|' README.md
 
 dune build
