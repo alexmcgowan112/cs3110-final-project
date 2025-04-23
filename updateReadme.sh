@@ -16,7 +16,10 @@ else
 fi
 
 # Run tests with bisect_ppx and generate the coverage report
-dune test --instrument-with bisect_ppx --force && bisect-ppx-report html && open _coverage/index.html
+dune test --instrument-with bisect_ppx --force && bisect-ppx-report html
+if [[ "$1" != "--no-gui" && "$1" != "-n" ]]; then
+    open _coverage/index.html
+fi
 
 # Extract the coverage percentage from the generated index.html
 COVERAGE=$(perl -nle 'print $1 if /<meta name="description" content="([0-9.]+)% coverage overall"/' _coverage/index.html)
