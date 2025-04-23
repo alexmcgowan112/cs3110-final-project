@@ -36,12 +36,12 @@ let input_responses () =
   helper curr_input out
 
 let run_inputs input_list =
-  let default_dunegon = Dungeon.create_test () in 
-  let default_room = Dungeon.current_room (default_dunegon) in
+  let default_dungeon = Dungeon.create_test () in
+  let default_room = Dungeon.current_room default_dungeon in
   let rec helper = function
     | [] -> default_room
     | h :: t ->
-        Game.test_input_handling default_dunegon h;
+        Game.test_input_handling default_dungeon h;
         helper t
   in
   helper input_list

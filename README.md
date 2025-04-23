@@ -1,7 +1,8 @@
 ### Lines of Code: 676/1600
 
-- Run `./updateLoC.sh` to update this
-- Alternatively, use `cloc --by-file --include-lang=OCaml .` to calculate this manually (make sure you run `dune clean` first)
+### Coverage: 59.92%/80%
+
+- Run `./updateReadme.sh` to update these statistics
 
 ## TODO:
 

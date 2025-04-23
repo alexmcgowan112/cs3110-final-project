@@ -6,6 +6,7 @@ val create : unit -> t
     connecting each room. *)
 
 val load_dungeon_from_file : string -> t
+(** [load_dungeon_from_file path] creates a dungeon from the file at [path]. *)
 
 val create_test : unit -> t
 (** [create_test ()] is a new dungeon to use for testing. *)

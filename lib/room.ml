@@ -87,7 +87,7 @@ let load_room_from_file filename =
   then failwith "Layout isn't rectangular"
   else { tiles; playerLoc; explosions = []; bombs = [] }
 
-let new_room () = load_room_from_file "data/rooms/simple.json"
+let new_room () = load_room_from_file "data/rooms/test_rooms/simple.json"
 
 (* Game Logic *)
 let explode room =

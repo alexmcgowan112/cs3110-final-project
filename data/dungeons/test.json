@@ -1,7 +1,7 @@
 {
   "rooms": [
     {
-      "room_file": "../data/rooms/test_rooms/simple.json",
+      "room_file": "../data/rooms/test_rooms/simple_test.json",
       "exits": [
         {
           "x_coord": 5,
@@ -11,7 +11,7 @@
       ]
     },
     {
-      "room_file": "../data/rooms/test_rooms/maze.json",
+      "room_file": "../data/rooms/test_rooms/maze_test.json",
       "exits": [
         {
           "x_coord": 9,
