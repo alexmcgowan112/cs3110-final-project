@@ -35,8 +35,8 @@ struct
       | 97 -> Left (* A *)
       | 115 -> Down (* S *)
       | 100 -> Right (* D *)
-      | 32 -> Space (* Space *)
-      | 10 -> Enter (* Enter *)
+      | 32 -> Space
+      | 10 -> Enter
       | code when code = Key.up -> Up
       | code when code = Key.down -> Down
       | code when code = Key.left -> Left

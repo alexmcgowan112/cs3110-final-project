@@ -2,7 +2,18 @@ module TestInput = Keyboard.MakeInput (struct
   (** [arr] is an array of integers representing a sequence of key codes. *)
   let arr =
     [|
-      98; 113; Curses.Key.up; Curses.Key.down; Curses.Key.left; Curses.Key.right;
+      98;
+      113;
+      119;
+      97;
+      115;
+      100;
+      32;
+      10;
+      Curses.Key.up;
+      Curses.Key.down;
+      Curses.Key.left;
+      Curses.Key.right;
     |]
 
   (** [ind] is a reference to an integer that tracks the current index in the
