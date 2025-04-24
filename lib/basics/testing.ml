@@ -37,6 +37,11 @@ let string_of_list elem_to_string lst =
   "["
   ^ List.fold_left (fun acc el -> " " ^ elem_to_string el ^ ";" ^ acc) "]" lst
 
+let string_of_matrix matrix =
+  matrix |> Array.to_list
+  |> List.map (fun row -> Array.to_list row |> String.concat "")
+  |> String.concat "\n"
+
 let input_responses () =
   let curr_input = TestInput.read_input () in
   let out = [] in

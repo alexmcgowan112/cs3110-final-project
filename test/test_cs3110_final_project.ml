@@ -2,16 +2,17 @@ open OUnit2
 open Cs3110_final_project
 open Testing
 
-let make_add_dir_test (coord, n, dir) expected =
-  "taking " ^ string_of_int n ^ " step in the direction "
-  ^ Keyboard.to_string dir ^ " from " ^ Coords.to_string coord
-  ^ " should result in " ^ Coords.to_string expected
-  >:: fun _ ->
-  assert_equal expected
-    (Coords.add_dir coord n dir)
-    ~cmp:Coords.equal ~printer:Coords.to_string
-
 let coords_tests =
+  let make_add_dir_test (coord, n, dir) expected =
+    "taking " ^ string_of_int n ^ " step in the direction "
+    ^ Keyboard.to_string dir ^ " from " ^ Coords.to_string coord
+    ^ " should result in " ^ Coords.to_string expected
+    >:: fun _ ->
+    assert_equal expected
+      (Coords.add_dir coord n dir)
+      ~cmp:Coords.equal ~printer:Coords.to_string
+  in
+
   [
     ( "coordinates equal in both elements are equal" >:: fun _ ->
       assert_bool "Not equal" (Coords.equal { x = 5; y = 5 } { x = 5; y = 5 })
@@ -42,18 +43,6 @@ let coords_tests =
     make_add_dir_test ({ x = 5; y = 5 }, 5, Keyboard.None) { x = 5; y = 5 };
   ]
 
-let make_movement_test direction expected =
-  let dir_str = Keyboard.to_string direction |> String.lowercase_ascii in
-  "moving " ^ dir_str ^ " moves player " ^ dir_str >:: fun _ ->
-  assert_equal expected
-    (Room.get_player_pos (run_inputs [ direction ]))
-    ~cmp:Coords.equal ~printer:Coords.to_string
-
-let string_of_matrix (matrix : string array array) : string =
-  matrix |> Array.to_list
-  |> List.map (fun row -> Array.to_list row |> String.concat "")
-  |> String.concat "\n"
-
 let keyboard_tests =
   [
     ( "keyboard input test all keys" >:: fun _ ->
@@ -77,6 +66,14 @@ let keyboard_tests =
   ]
 
 let room_tests =
+  let make_movement_test direction expected =
+    let dir_str = Keyboard.to_string direction |> String.lowercase_ascii in
+    "moving " ^ dir_str ^ " moves player " ^ dir_str >:: fun _ ->
+    assert_equal expected
+      (Room.get_player_pos (run_inputs [ direction ]))
+      ~cmp:Coords.equal ~printer:Coords.to_string
+  in
+
   [
     ( "getting player position at the start is equal to the starting position"
     >:: fun _ ->

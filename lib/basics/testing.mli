@@ -7,6 +7,10 @@ val string_of_list : ('a -> string) -> 'a list -> string
 (** [string_of_list f l] converts [l] to a string by applying the function [f]
     to each element and joining the results with commas. *)
 
+val string_of_matrix : string array array -> string
+(** [string_of_matrix matrix] converts [matrix] into a string, placing each
+    sub-array on its own row. *)
+
 val input_responses : unit -> Keyboard.t list
 (** [input_responses ()] returns a sequence of keyboard inputs up to
     Keyboard.None (indicating no further input). *)
