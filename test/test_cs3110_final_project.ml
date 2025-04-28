@@ -151,7 +151,21 @@ let explosion_tests =
       assert_bool "In progress" (not (Explosion.is_in_progress exp)) );
   ]
 
+let hud_tests =
+  [
+    ( "command palette displays the help menu when asked" >:: fun _ ->
+      let dungeon = Dungeon.create_test () in
+      let () =
+        Game.test_input_handling ~cmd_palette_str:"help" dungeon Keyboard.Enter
+      in
+      assert_equal
+        (String.concat "\n"
+           (BatList.of_enum (BatFile.lines_of "../data/help.txt")))
+        (Dungeon.hud_text dungeon) ~printer:Fun.id );
+  ]
+
 let tests =
-  "test suite" >::: coords_tests @ keyboard_tests @ room_tests @ explosion_tests
+  "test suite"
+  >::: coords_tests @ keyboard_tests @ room_tests @ explosion_tests @ hud_tests
 
 let _ = run_test_tt_main tests

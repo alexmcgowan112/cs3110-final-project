@@ -17,15 +17,20 @@ let read_string () =
   in
   loop ""
 
-let command_palette room =
+let command_palette ?(test_input_string = "") room =
   Dungeon.set_hud_text room "Command Palette: ";
   ignore (Curses.nocbreak ());
   ignore (Curses.echo ());
-  let s = read_string () in
+  let s =
+    if test_input_string = "" then read_string () else test_input_string
+  in
   Dungeon.set_hud_text room
     (match s with
     | "help" ->
-        String.concat "\n" (BatList.of_enum (BatFile.lines_of "data/help.txt"))
+        String.concat "\n"
+          (BatList.of_enum
+             (if test_input_string = "" then BatFile.lines_of "data/help.txt"
+              else BatFile.lines_of "../data/help.txt"))
     | "quit" ->
         Curses.endwin ();
         exit 0
@@ -33,7 +38,7 @@ let command_palette room =
   ignore (Curses.noecho ());
   ignore (Curses.cbreak ())
 
-let rec input_handling dungeon input =
+let rec input_handling ?(cmd_palette_str = "") dungeon input =
   match input with
   | Keyboard.Up -> move_player dungeon Keyboard.Up
   | Keyboard.Down -> move_player dungeon Keyboard.Down
@@ -41,7 +46,9 @@ let rec input_handling dungeon input =
   | Keyboard.Left -> move_player dungeon Keyboard.Left
   | Keyboard.B -> Room.place_bomb (Dungeon.current_room dungeon)
   | Keyboard.Space -> Room.wait (Dungeon.current_room dungeon)
-  | Keyboard.Enter -> command_palette dungeon
+  | Keyboard.Enter ->
+      if cmd_palette_str = "" then command_palette dungeon
+      else command_palette ~test_input_string:cmd_palette_str dungeon
   | Keyboard.Q ->
       Curses.endwin ();
       exit 0
@@ -62,4 +69,5 @@ let process_world dungeon =
   Dungeon.set_hud_text dungeon
     (Coords.to_string (Room.get_player_pos (Dungeon.current_room dungeon)))
 
-let test_input_handling = input_handling
+let test_input_handling ?(cmd_palette_str = "") =
+  input_handling ~cmd_palette_str
