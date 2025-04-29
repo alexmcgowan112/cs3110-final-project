@@ -9,6 +9,7 @@ val test_input_handling :
     the string that will be passed to the command palette if it is triggered.
     This function is a wrapper for use in testing.*)
 
-val process_world : Dungeon.t -> unit
+val process_world : Dungeon.t -> bool
 (** [proccess_world room] processes the game world, updating the state of the
-    game based on the current room and player actions. *)
+    game based on the current room and player actions. If [false], the game is
+    over. Otherwise, it continues. *)

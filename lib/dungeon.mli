@@ -26,3 +26,6 @@ val hud_text : t -> string
 val set_hud_text : t -> string -> unit
 (** [set_hud_text dungeon text] sets the text for the hud bar at the bottom of
     the screen. *)
+
+val player : t -> Player.t
+(* [player dungeon] is the [Player] that is in the provided dungeon. *)

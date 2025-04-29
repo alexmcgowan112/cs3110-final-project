@@ -1,5 +1,7 @@
 {
   "playerStartX": 5,
   "playerStartY": 5,
+  "enemies" : [
+  ],
   "layout": "data/rooms/test_rooms/maze.rm"
 }

@@ -10,11 +10,14 @@ let create position max_radius =
 
 let is_in_progress exp = exp.in_progress
 
-let tile_is_exploding tile exp =
-  exp.in_progress
-  &&
-  let distance = Coords.euclid_dist exp.position tile in
-  exp.curr_radius >= int_of_float (ceil (distance -. 0.5))
+let tile_is_exploding tile explosions =
+  List.exists
+    (fun exp ->
+      exp.in_progress
+      &&
+      let distance = Coords.euclid_dist exp.position tile in
+      exp.curr_radius >= int_of_float (ceil (distance -. 0.5)))
+    explosions
 
 let spread exp =
   if exp.curr_radius = exp.max_radius then exp.in_progress <- false

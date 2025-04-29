@@ -15,9 +15,12 @@ type dungeon_room = {
 }
 
 (* TODO AF, RI *)
-(* A [dungeon] is stored as a list of [dungeon_rooms] and the index of the room that the player is currently in in the dungeon's rooms list. *)
+(* A [dungeon] is stored as a list of [dungeon_rooms] and the index 
+of the room that the player is currently in in the dungeon's rooms list.
+There is also a [Player] object that is basically a list of stats for the player (currently just the player's health) *)
 type t = {
   rooms : dungeon_room Array.t;
+  player : Player.t;
   mutable current_room : int;
   mutable hud_text : string;
 }
@@ -63,8 +66,10 @@ let load_dungeon_from_file filename =
   in
   let current_room = get_int_from_json "current_room" in
   let rooms = get_from_json filename "rooms" |> json_to_dungeon_rooms in
+  let player = Player.create () in
   {
     rooms;
+    player;
     current_room;
     hud_text = "Welcome. Press Enter to open command palette.";
   }
@@ -125,3 +130,4 @@ let move_player dungeon direction =
 (* TODO add check that the new position is correct? *)
 
 let hud_text dungeon = dungeon.hud_text
+let player dungeon = dungeon.player

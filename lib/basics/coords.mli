@@ -24,5 +24,9 @@ val euclid_dist : t -> t -> float
 (** [euclid_dist c1 c2] returns the Euclidean distance between coordinates [c1]
     and [c2]. *)
 
+val chebyshev_dist : t -> t -> int
+(** [chebyshev_dist c1 c2] returns the Chebyshev distance between coordinates [c1]
+    and [c2]. *)
+
 val to_string : t -> string
 (** [to_string coord] is the string representation of the coordinate (x, y).*)

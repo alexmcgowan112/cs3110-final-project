@@ -129,18 +129,18 @@ let explosion_tests =
     ( "the center tile of an explosion explodes immediately" >:: fun _ ->
       assert_bool "Not exploding"
         (Explosion.tile_is_exploding { x = 5; y = 5 }
-           (Explosion.create { x = 5; y = 5 } 3)) );
+           [(Explosion.create { x = 5; y = 5 } 3)]) );
     ( "a tile adjacent to an explosion explodes after 1 turn" >:: fun _ ->
       let exp = Explosion.create { x = 5; y = 5 } 3 in
       Explosion.spread exp;
       assert_bool "Not exploding"
-        (Explosion.tile_is_exploding { x = 5; y = 6 } exp) );
+        (Explosion.tile_is_exploding { x = 5; y = 6 } [exp]) );
     ( "a tile further from an explosion than its current radius does not explode"
     >:: fun _ ->
       let exp = Explosion.create { x = 5; y = 5 } 3 in
       Explosion.spread exp;
       assert_bool "Exploding"
-        (not (Explosion.tile_is_exploding { x = 7; y = 7 } exp)) );
+        (not (Explosion.tile_is_exploding { x = 7; y = 7 } [exp])) );
     ( "a newly created explosion is in progress" >:: fun _ ->
       let exp = Explosion.create { x = 5; y = 5 } 3 in
       assert_bool "Not in progress" (Explosion.is_in_progress exp) );

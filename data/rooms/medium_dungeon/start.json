@@ -1,5 +1,13 @@
 {
   "playerStartX": 5,
   "playerStartY": 6,
+  "enemies" : [
+    {
+      "start_x_coord": 7,
+      "start_y_coord": 8
+    },
+    {"start_x_coord": 3,
+      "start_y_coord": 2}
+  ],
   "layout": "data/rooms/medium_dungeon/start.rm"
 }

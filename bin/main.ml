@@ -80,10 +80,14 @@ let read_int_input prompt y x =
   ignore (Curses.noecho ());
   result
 
+let print_game_over () =
+  ignore (Curses.endwin ());
+  print_endline "\n------------\nYou Died :(\n------------\n\n"
+
 let rec game_loop () =
   print_current_room ();
-  Game.process_world dungeon;
   Curses.flushinp ();
-  game_loop ()
+  let game_continue = Game.process_world dungeon in
+  if game_continue then game_loop () else print_game_over ()
 
 let () = game_loop ()

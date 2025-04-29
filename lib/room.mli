@@ -17,6 +17,12 @@ val move_player : t -> Keyboard.t -> unit
     [direction]. The player will not move if they reach the edge of the room or
     if they run into a wall. *)
 
+val update_enemies : t -> Player.t -> unit
+(** [update_enemies room player] updates the enemies in the provided room in-place*)
+
+val get_enemies : t -> Enemies.t list
+(** [get_enemies room] is the list of Enemies in the provided room. *)
+
 val explode : t -> unit
 (** [explode room] updates all currently happening explosions in [room]. *)
 
