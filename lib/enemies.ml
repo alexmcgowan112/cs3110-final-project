@@ -29,11 +29,10 @@ let attack enemy = enemy.atk_damage
 let move this coords = this.position <- coords
 let get_position this = this.position
 
-(* bool indicating if there is an enemy from the provided list at the given
-   coords. *)
+(** [enemy_at_pos pos enemies] returns whether an enemy in [enemies] is present
+    at [pos] *)
 let enemy_at_pos coords enemies =
-  not
-    (List.is_empty (List.filter (fun enemy -> enemy.position = coords) enemies))
+  List.exists (fun enemy -> enemy.position = coords) enemies
 
 let next_move target this all_enemies =
   (* Placeholder logic for next move. Replace an A* closest path algorithm. This

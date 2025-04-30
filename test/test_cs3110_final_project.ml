@@ -18,9 +18,11 @@ let coords_tests =
       assert_bool "Not equal" (Coords.equal { x = 5; y = 5 } { x = 5; y = 5 })
     );
     ( "coordinates not equal in either element are not equal" >:: fun _ ->
-      assert_bool "Equal" (not (Coords.equal { x = 5; y = 5 } { x = 6; y = 5 }));
-      assert_bool "Equal" (not (Coords.equal { x = 5; y = 5 } { x = 5; y = 6 }))
-    );
+      let assert_coords_not_equal c1 c2 =
+        Coords.equal c1 c2 |> not |> assert_bool "Equal"
+      in
+      assert_coords_not_equal { x = 5; y = 5 } { x = 6; y = 5 };
+      assert_coords_not_equal { x = 5; y = 5 } { x = 5; y = 6 } );
     ( "adding two coordinates is a coordinate with the elements summed"
     >:: fun _ ->
       assert_equal
@@ -33,14 +35,24 @@ let coords_tests =
         1.4142135623730951 ~printer:string_of_float );
     ( "Manhattan distance between two coordinates works" >:: fun _ ->
       assert_equal
-        (Coords.manhattan_dist { x = 5; y = 5 } { x = 6; y = 6 })
-        2 ~cmp:Int.equal ~printer:string_of_int );
+        (Coords.manhattan_dist { x = 2; y = 3 } { x = 6; y = 6 })
+        7 ~cmp:Int.equal ~printer:string_of_int );
+    ( "Chebyshev distance between two coordinates works" >:: fun _ ->
+      let assert_chebyshev c1 c2 expected =
+        assert_equal
+          (Coords.chebyshev_dist c1 c2)
+          expected ~cmp:Int.equal ~printer:string_of_int
+      in
+      assert_chebyshev { x = 2; y = 4 } { x = 6; y = 6 } 4;
+      assert_chebyshev { x = 6; y = 5 } { x = 6; y = 6 } 1 );
     make_add_dir_test ({ x = 5; y = 5 }, 5, Keyboard.Up) { x = 5; y = 0 };
     make_add_dir_test ({ x = 5; y = 5 }, 3, Keyboard.Down) { x = 5; y = 8 };
     make_add_dir_test ({ x = 5; y = 5 }, 1, Keyboard.Left) { x = 4; y = 5 };
     make_add_dir_test ({ x = 5; y = 5 }, 2, Keyboard.Right) { x = 7; y = 5 };
     make_add_dir_test ({ x = 5; y = 5 }, 0, Keyboard.Up) { x = 5; y = 5 };
-    make_add_dir_test ({ x = 5; y = 5 }, 5, Keyboard.None) { x = 5; y = 5 };
+    ( "Invalid direction should raise a failure" >:: fun _ ->
+      assert_raises (Failure "add_dir expects a direction") (fun () ->
+          Coords.add_dir { x = 5; y = 5 } 1 Keyboard.None) );
   ]
 
 let keyboard_tests =
@@ -129,18 +141,18 @@ let explosion_tests =
     ( "the center tile of an explosion explodes immediately" >:: fun _ ->
       assert_bool "Not exploding"
         (Explosion.tile_is_exploding { x = 5; y = 5 }
-           [(Explosion.create { x = 5; y = 5 } 3)]) );
+           [ Explosion.create { x = 5; y = 5 } 3 ]) );
     ( "a tile adjacent to an explosion explodes after 1 turn" >:: fun _ ->
       let exp = Explosion.create { x = 5; y = 5 } 3 in
       Explosion.spread exp;
       assert_bool "Not exploding"
-        (Explosion.tile_is_exploding { x = 5; y = 6 } [exp]) );
+        (Explosion.tile_is_exploding { x = 5; y = 6 } [ exp ]) );
     ( "a tile further from an explosion than its current radius does not explode"
     >:: fun _ ->
       let exp = Explosion.create { x = 5; y = 5 } 3 in
       Explosion.spread exp;
       assert_bool "Exploding"
-        (not (Explosion.tile_is_exploding { x = 7; y = 7 } [exp])) );
+        (not (Explosion.tile_is_exploding { x = 7; y = 7 } [ exp ])) );
     ( "a newly created explosion is in progress" >:: fun _ ->
       let exp = Explosion.create { x = 5; y = 5 } 3 in
       assert_bool "Not in progress" (Explosion.is_in_progress exp) );

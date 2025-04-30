@@ -11,7 +11,7 @@ let add_dir coord n = function
   | Keyboard.Down -> { coord with y = coord.y + n }
   | Keyboard.Left -> { coord with x = coord.x - n }
   | Keyboard.Right -> { coord with x = coord.x + n }
-  | _ -> coord
+  | _ -> failwith "add_dir expects a direction"
 
 let manhattan_dist c1 c2 = abs (c1.x - c2.x) + abs (c1.y - c2.y)
 

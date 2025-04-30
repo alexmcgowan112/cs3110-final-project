@@ -14,7 +14,8 @@ val add : t -> t -> t
 
 val add_dir : t -> int -> Keyboard.t -> t
 (** [add_dir coord n dir] returns a new coordinate that is the result of moving
-    from coordinate [coord] in direction [dir] by distance [n]. *)
+    from coordinate [coord] in direction [dir] by distance [n]. Raises: Failure
+    if [dir] is not a direction. *)
 
 val manhattan_dist : t -> t -> int
 (** [manhattan_dist c1 c2] returns the Manhattan distance between coordinates
@@ -25,8 +26,8 @@ val euclid_dist : t -> t -> float
     and [c2]. *)
 
 val chebyshev_dist : t -> t -> int
-(** [chebyshev_dist c1 c2] returns the Chebyshev distance between coordinates [c1]
-    and [c2]. *)
+(** [chebyshev_dist c1 c2] returns the Chebyshev distance between coordinates
+    [c1] and [c2]. *)
 
 val to_string : t -> string
 (** [to_string coord] is the string representation of the coordinate (x, y).*)
