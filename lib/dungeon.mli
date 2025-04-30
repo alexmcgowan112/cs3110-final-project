@@ -1,5 +1,4 @@
 type t
-(** The type of a dungeon. *)
 
 val create : unit -> t
 (** [create ()] is a new dungeon. It currently has 2 rooms and one exit

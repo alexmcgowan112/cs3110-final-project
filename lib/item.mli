@@ -1,10 +1,9 @@
 type stats =
   | Item
   | Armor of { def : int }
-  | Weapon of { atk : int }  (** The type representing the stats of an item. *)
+  | Weapon of { atk : int }
 
 type t
-(** The type representing an item. *)
 
 val get_defense : t -> int option
 (** [get_defense item] returns the defense value of the given [item] if it is an

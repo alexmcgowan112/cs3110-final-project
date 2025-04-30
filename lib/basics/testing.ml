@@ -1,6 +1,7 @@
 module TestInput = Keyboard.MakeInput (struct
-  (** [arr] is an array of integers representing a sequence of key codes. *)
-  let arr =
+  (** [key_codes] is an array of integers representing a sequence of key codes.
+  *)
+  let key_codes =
     [|
       98;
       113;
@@ -17,7 +18,7 @@ module TestInput = Keyboard.MakeInput (struct
     |]
 
   (** [ind] is a reference to an integer that tracks the current index in the
-      [arr] array. *)
+      [key_codes] array. *)
   let ind = ref 0
 
   (** [get ()] retrieves the current key code from the [arr] array based on the
@@ -26,8 +27,8 @@ module TestInput = Keyboard.MakeInput (struct
       bounds, it returns [1]. *)
   let get () =
     let i = !ind in
-    if i < Array.length arr then (
-      let v = arr.(i) in
+    if i < Array.length key_codes then (
+      let v = key_codes.(i) in
       ind := i + 1;
       v)
     else 1

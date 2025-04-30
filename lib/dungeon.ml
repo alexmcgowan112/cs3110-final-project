@@ -96,10 +96,8 @@ let will_this_move_lead_to_an_exit dungeon dir =
   let pos = Room.get_player_pos (current_room dungeon) in
   let (pos_after_move : Coords.t) =
     match dir with
-    | Keyboard.Up -> { x = pos.x; y = pos.y - 1 }
-    | Keyboard.Down -> { x = pos.x; y = pos.y + 1 }
-    | Keyboard.Right -> { x = pos.x + 1; y = pos.y }
-    | Keyboard.Left -> { x = pos.x - 1; y = pos.y }
+    | Keyboard.Up | Keyboard.Down | Keyboard.Right | Keyboard.Left ->
+        Coords.add_dir pos 1 dir
     | _ -> failwith "invalid keyboard input to calculate move with"
   in
   let matching_exits =

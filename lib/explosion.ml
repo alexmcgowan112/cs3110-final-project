@@ -4,6 +4,10 @@ type t = {
   mutable curr_radius : int;
   mutable in_progress : bool;
 }
+(** [{position; max_radius; curr_radius; in_progress}] represents an explosion
+    at [position]. The explosion currently has [curr_radius] and will grow to a
+    maximum size of [max_radius]. If the explosion is still ongoing, it will be
+    [in_progress]. RI: [curr_radius <= max_radius] *)
 
 let create position max_radius =
   { position; max_radius; curr_radius = 0; in_progress = true }

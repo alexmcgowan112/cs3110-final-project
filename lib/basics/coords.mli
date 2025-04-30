@@ -3,7 +3,7 @@ type t = {
   y : int;
 }
 (** AF: [{x; y}] represents a coordinate in a 2D space with [x] and [y]
-    coordinates. RI: [x] and [y] are non-negative integers. *)
+    coordinates. *)
 
 val equal : t -> t -> bool
 (** [equal c1 c2] returns true if the coordinates [c1] and [c2] are equal. *)

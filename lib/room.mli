@@ -1,5 +1,4 @@
 type t
-(** The type of a room. *)
 
 val new_room : unit -> t
 (** [new_room ()] returns a new 11 by 11 room filled mostly with empty tiles and

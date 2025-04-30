@@ -15,12 +15,10 @@ type t = {
   mutable bombs : bomb list;
   mutable enemies : Enemies.t list;
 }
-(** AF: [{tiles; playerLoc; explosion}] represents a room with [tiles], a player
-    at [playerLoc] and a (potential) current explosion [explosion]. RI:
-    [playerLoc] is in bounds and is not inside of a wall tile. [explosion] is
-    None if no explosion is currently happening. [bombs] is a list of currently
-    counting down bombs (I think). [enemies] is a list of all the Enemies in the
-    room*)
+(** AF: [{tiles; playerLoc; explosions; bombs}] represents a room with [tiles],
+    a player at [playerLoc] and a list current explosions [explosions], and
+    bombs that haven't exploded yet [bombs]. RI: [playerLoc] is in bounds and is
+    not inside of a wall tile. *)
 
 (* Utility Functions *)
 let char_to_tile = function
@@ -68,16 +66,12 @@ let to_string_matrix room =
 
 let get_player_pos { playerLoc; _ } = playerLoc
 
+(* Room Creation *)
 let read_file_to_tiles file =
-  let str_list =
-    let contents = In_channel.with_open_bin file In_channel.input_all in
-    String.split_on_char '\n' contents
-  in
   Array.map
     (fun s ->
       Array.init (String.length s) (fun i -> char_to_tile (String.get s i)))
-    (Array.of_list str_list)
-(* Room Creation *)
+    (BatArray.of_enum (BatFile.lines_of file))
 
 (* the enemies in a room are determined by the room's JSON file. Enemies are
    stored as a list of dictionaries. Each dictionary contains start_x_coord and
@@ -90,8 +84,7 @@ let json_to_enemies lst =
              {
                x = to_int (member "start_x_coord" json_enemy);
                y = to_int (member "start_y_coord" json_enemy);
-             }
-             9999))
+             }))
 
 let load_room_from_file filename =
   let get_from_json key =

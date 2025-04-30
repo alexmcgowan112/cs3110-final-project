@@ -1,5 +1,4 @@
 type t = {
-  id : int;
   mutable position : Coords.t;
   mutable health : int;
   atk_range : int;
@@ -12,10 +11,13 @@ type t = {
       (* Tells if this enemy can make a move this turn. Currently, enemies can
          only act every other turn to make it easier for the player. *)
 }
+(** AF: [{position; health; atk_range; atk_damage; can_act}] represents an enemy
+    current at [position], with [health]. The enemy can hit the player from a
+    distance of [atk_range] and does [atk_damage] when they hit the player.
+    [can_act] determines if the enemy is able to act on the next timestep. *)
 
-let create coords id =
+let create coords =
   {
-    id;
     position = coords;
     health = 100;
     atk_range = 1;
@@ -77,8 +79,6 @@ let next_move target this all_enemies =
     Coords.y = this.position.Coords.y + dy;
   }
 
-open Coords
-
 (* I updated this file to not take the rooms directly and instead just take
    whatever part they need (ie. player coords, string representation, etc) to
    avoid a circular import error. *)
@@ -91,7 +91,8 @@ let neighbors str_matrix (c : Coords.t) =
       let nx, ny = (c.x + dx, c.y + dy) in
       if nx >= 0 && ny >= 0 && ny <= max_y && nx <= max_x then
         let s = str_matrix.(ny).(nx) in
-        if s = "#" then None (* Wall *) else Some { x = nx; y = ny }
+        if s = "#" then None
+        (* Wall *) else Some { Coords.x = nx; Coords.y = ny }
       else None)
     deltas
 
@@ -112,7 +113,7 @@ let find_path room_str start goal =
         else begin
           List.iter
             (fun n ->
-              let key = (n.x, n.y) in
+              let key = (n.Coords.x, n.Coords.y) in
               if not (Hashtbl.mem visited key) then begin
                 Hashtbl.add visited key true;
                 Hashtbl.add came_from key curr;

@@ -40,10 +40,8 @@ let command_palette ?(test_input_string = "") room =
 
 let rec input_handling ?(cmd_palette_str = "") dungeon input =
   match input with
-  | Keyboard.Up -> move_player dungeon Keyboard.Up
-  | Keyboard.Down -> move_player dungeon Keyboard.Down
-  | Keyboard.Right -> move_player dungeon Keyboard.Right
-  | Keyboard.Left -> move_player dungeon Keyboard.Left
+  | Keyboard.Up | Keyboard.Down | Keyboard.Right | Keyboard.Left ->
+      move_player dungeon input
   | Keyboard.B -> Room.place_bomb (Dungeon.current_room dungeon)
   | Keyboard.Space -> Room.wait (Dungeon.current_room dungeon)
   | Keyboard.Enter ->

@@ -8,6 +8,9 @@ type t = {
   stats : stats;
   mutable location : (Coords.t * Room.t) option;
 }
+(** AF: [{id; stats; location}] represents the specific item represented by
+    [id], which has [stats] and is at [location]. RI: [id] is a valid item
+    id(what this means is tbd) *)
 
 let get_defense armor =
   match armor.stats with
