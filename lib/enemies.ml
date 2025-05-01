@@ -12,8 +12,7 @@ type t = {
   mutable can_act : bool;
       (* Tells if this enemy can make a move this turn. Currently, enemies can
          only act every other turn to make it easier for the player. *)
-  enemy_type: enemy_type
-      (* The type of enemy. Currently only Ghost. *)
+  enemy_type : enemy_type; (* The type of enemy. Currently only Ghost. *)
 }
 (** AF: [{position; health; atk_range; atk_damage; can_act}] represents an enemy
     current at [position], with [health]. The enemy can hit the player from a
@@ -23,18 +22,18 @@ type t = {
 (*ghost uses next_move. goes thorugh walls zombie uses ____. does not go through
   walls*)
 
-let create coords enemy_type=
+let create coords enemy_type =
   match enemy_type with
   | Ghost ->
       (* Ghosts can go through walls *)
-  {
-    position = coords;
-    health = 100;
-    atk_range = 1;
-    atk_damage = 1;
-    can_act = true;
-    enemy_type = Ghost;
-  }
+      {
+        position = coords;
+        health = 100;
+        atk_range = 1;
+        atk_damage = 1;
+        can_act = true;
+        enemy_type = Ghost;
+      }
 
 let attack enemy = enemy.atk_damage
 let move this coords = this.position <- coords
@@ -162,7 +161,11 @@ let move_or_attack enemy player_loc player all_enemies =
   if enemy.can_act then
     if Coords.chebyshev_dist enemy.position player_loc <= enemy.atk_range then
       Player.damage player enemy.atk_damage
-    else move enemy (next_move player_loc enemy all_enemies);
+    else
+      move enemy
+        (match enemy.enemy_type with
+        | Ghost -> next_move player_loc enemy all_enemies
+        | _ -> failwith "enemy type not implemented yet");
   enemy.can_act <- not enemy.can_act;
   (* enemy can do something every other turn (to make it easier for the
      player)*)
