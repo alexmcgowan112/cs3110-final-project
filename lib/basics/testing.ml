@@ -58,7 +58,7 @@ let run_inputs input_list =
   let rec helper = function
     | [] -> default_room
     | h :: t ->
-        Game.test_input_handling default_dungeon h;
+        let _ = Game.test_input_handling default_dungeon h in (*TODO don't just throw away the output?*)
         helper t
   in
   helper input_list
