@@ -71,11 +71,14 @@ let coords_to_string room (coords : Coords.t) =
     in
     match bomb with
     | Some b -> string_of_int b.fuse
-    | None ->
-        if Explosion.tile_is_exploding coords room.explosions then "*"
-        else if enemy_here room coords <> None then "X"
-          (* enemies currently only represented as Xs*)
-        else tile_to_string room.tiles.(coords.y).(coords.x)
+    | None -> (
+        match item_here room coords with
+        | Some item -> Item.to_string item
+        | None ->
+            if Explosion.tile_is_exploding coords room.explosions then "*"
+            else if enemy_here room coords <> None then "X"
+              (* enemies currently only represented as Xs*)
+            else tile_to_string room.tiles.(coords.y).(coords.x))
 
 let to_string_matrix room =
   Array.mapi
@@ -188,7 +191,7 @@ let load_room_from_file filename =
       bombs = [];
       enemies;
       graph = tiles_to_graph tiles;
-      items
+      items;
     }
 
 let new_room () = load_room_from_file "data/rooms/test_rooms/simple.json"
