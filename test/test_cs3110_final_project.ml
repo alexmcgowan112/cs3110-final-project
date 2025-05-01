@@ -74,7 +74,9 @@ let keyboard_tests =
           Keyboard.Right;
         ]
         (input_responses ())
-        ~printer:(string_of_list Keyboard.to_string) );
+        ~printer:(string_of_list Keyboard.to_string);
+      assert_equal "None" (Keyboard.to_string Keyboard.None) ~cmp:String.equal
+    );
   ]
 
 let room_tests =
@@ -176,8 +178,39 @@ let hud_tests =
         (Dungeon.hud_text dungeon) ~printer:Fun.id );
   ]
 
+let enemy_tests =
+  [
+    ( "Default enemy has expected stats" >:: fun _ ->
+      let enemy = Enemies.create { x = 5; y = 5 } in
+      assert_equal
+        { Coords.x = 5; Coords.y = 5 }
+        (Enemies.get_position enemy)
+        ~cmp:Coords.equal ~printer:Coords.to_string;
+      Enemies.move enemy { x = 0; y = 0 };
+      assert_equal
+        { Coords.x = 0; Coords.y = 0 }
+        (Enemies.get_position enemy)
+        ~cmp:Coords.equal ~printer:Coords.to_string;
+      assert_bool "Enemies start out alive" (Enemies.is_alive enemy);
+      Enemies.take_damage enemy 10;
+      assert_bool "Enemies don't instantly die from taking damage"
+        (Enemies.is_alive enemy);
+      Enemies.take_damage enemy 10000;
+      assert_bool "Enemies die after taking too much damage"
+        (not (Enemies.is_alive enemy)) );
+  ]
+
+let game_tests =
+  let dungeon = Dungeon.create_test () in
+  [
+    ( "The game starts out as expected" >:: fun _ ->
+      assert_bool "The player should not start out dead"
+        (Game.process_world dungeon) );
+  ]
+
 let tests =
   "test suite"
   >::: coords_tests @ keyboard_tests @ room_tests @ explosion_tests @ hud_tests
+       @ enemy_tests @ game_tests
 
 let _ = run_test_tt_main tests

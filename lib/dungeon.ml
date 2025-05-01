@@ -109,9 +109,7 @@ let will_this_move_lead_to_an_exit dungeon dir =
 (* TODO add check if matching_exits len != 1? *)
 
 let get_pos_in_new_room old_room_num new_room =
-  (List.hd
-     (List.filter (fun exit -> exit.to_room = old_room_num) new_room.exits))
-    .coords
+  (List.find (fun exit -> exit.to_room = old_room_num) new_room.exits).coords
 (*TODO error handling, what if no list head, etc*)
 (*TODO what if each room has multiple exits that connect? right now it just
   picks the first exit that matches *)
