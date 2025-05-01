@@ -8,10 +8,10 @@ val load_room_from_file : string -> t
 (** [load_room_from_file filename] creates a room from the json file at
     [filename]. *)
 
-val wait : t -> unit
+val wait : t -> Player.t -> unit
 (** [wait room] advances time without moving the player. *)
 
-val move_player : t -> Keyboard.t -> unit
+val move_player : t -> Keyboard.t -> Player.t -> unit
 (** [move_player room direction] attempts to move the player in [room]
     [direction]. The player will not move if they reach the edge of the room or
     if they run into a wall. *)
@@ -30,7 +30,7 @@ val exploding : t -> bool
 (** [exploding room] is whether or not an explosion is currently happening in
     [room] *)
 
-val place_bomb : t -> unit
+val place_bomb : t -> Player.t -> unit
 (** [place_bomb room] creates a bomb at the player's current location. *)
 
 val get_player_pos : t -> Coords.t

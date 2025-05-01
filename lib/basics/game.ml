@@ -46,10 +46,10 @@ let rec input_handling ?(cmd_palette_str = "") dungeon input =
       move_player dungeon input;
       None
   | Keyboard.B ->
-      Room.place_bomb (Dungeon.current_room dungeon);
+      Room.place_bomb (Dungeon.current_room dungeon) (Dungeon.player dungeon);
       None
   | Keyboard.Space ->
-      Room.wait (Dungeon.current_room dungeon);
+      Room.wait (Dungeon.current_room dungeon) (Dungeon.player dungeon);
       None
   | Keyboard.Enter ->
       if cmd_palette_str <> "" then

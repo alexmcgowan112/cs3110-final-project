@@ -20,3 +20,6 @@ val equip : t -> Item.t -> unit
 val total_armor : t -> int
 (**[total_armor player] is the total defense from all the armor the player has
    equipped*)
+
+val fuse_time : t -> int
+val blast_radius : t -> int

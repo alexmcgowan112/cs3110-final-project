@@ -114,9 +114,15 @@ let json_to_items lst =
                       x = to_int (member "x_coord" json_item);
                       y = to_int (member "y_coord" json_item);
                     })
-           | "weapon" ->
-               Item.create_item 9999
-                 (Item.Weapon { atk = to_int (member "atk" json_item) })
+           | "biggerRadius" ->
+               Item.create_item 9999 Item.BiggerRadius
+                 (Some
+                    {
+                      x = to_int (member "x_coord" json_item);
+                      y = to_int (member "y_coord" json_item);
+                    })
+           | "shorterFuse" ->
+               Item.create_item 9999 Item.ShorterFuse
                  (Some
                     {
                       x = to_int (member "x_coord" json_item);
@@ -204,24 +210,29 @@ let explode room =
 
 let exploding room = not (List.is_empty room.explosions)
 
-let place_bomb room =
+let place_bomb room player =
   if
     not
       (List.exists
          (fun bomb -> Coords.equal room.playerLoc bomb.position)
          room.bombs)
-  then room.bombs <- { position = room.playerLoc; fuse = 6 } :: room.bombs
+  then
+    room.bombs <-
+      { position = room.playerLoc; fuse = Player.fuse_time player }
+      :: room.bombs
 
-let process_bombs room =
+let process_bombs room player =
   List.iter
     (fun b ->
       b.fuse <- b.fuse - 1;
       if b.fuse = 0 then
-        room.explosions <- Explosion.create b.position 3 :: room.explosions)
+        room.explosions <-
+          Explosion.create b.position (Player.blast_radius player)
+          :: room.explosions)
     room.bombs;
   room.bombs <- List.filter (fun b -> b.fuse > 0) room.bombs
 
-let move_player room direction =
+let move_player room direction player =
   let x, y = (room.playerLoc.x, room.playerLoc.y) in
   (match direction with
   | Keyboard.Up ->
@@ -237,7 +248,7 @@ let move_player room direction =
       if x < Array.length room.tiles.(0) - 1 && room.tiles.(y).(x + 1) <> Wall
       then room.playerLoc <- { x = x + 1; y }
   | _ -> ());
-  process_bombs room
+  process_bombs room player
 
 let update_enemy room player e =
   match e with

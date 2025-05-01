@@ -3,7 +3,8 @@ type stats =
   | Armor of { def : int ref }
     (* int ref so we can deplete how much "health" this piece of armor has as it
        gets hit*)
-  | Weapon of { atk : int }
+  | BiggerRadius
+  | ShorterFuse
 
 type t = {
   id : int;
@@ -17,11 +18,6 @@ type t = {
 let get_defense armor =
   match armor.stats with
   | Armor s -> Some !(s.def)
-  | _ -> None
-
-let get_attack weapon =
-  match weapon.stats with
-  | Weapon s -> Some s.atk
   | _ -> None
 
 let get_item_id item = item.id
@@ -45,4 +41,5 @@ let to_string item =
   match item.stats with
   | Item -> "+"
   | Armor def -> "v"
-  | Weapon atk -> "/"
+  | BiggerRadius -> "B"
+  | ShorterFuse -> "S"

@@ -1,17 +1,16 @@
 type stats =
   | Item
   | Armor of { def : int ref }
-  | Weapon of { atk : int }
+    (* int ref so we can deplete how much "health" this piece of armor has as it
+       gets hit*)
+  | BiggerRadius
+  | ShorterFuse
 
 type t
 
 val get_defense : t -> int option
 (** [get_defense item] returns the defense value of the given [item] if it is an
     armor, or [None] if it is not. *)
-
-val get_attack : t -> int option
-(** [get_attack item] returns the attack value of the given [item] if it is a
-    weapon, or [None] if it is not. *)
 
 val get_item_id : t -> int
 (** [get_item_id item] returns the unique identifier of the given [item]. *)
