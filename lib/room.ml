@@ -47,8 +47,6 @@ let coords_to_string room (coords : Coords.t) =
     || coords.x > Array.length room.tiles.(0)
   then "."
   else if Coords.equal room.playerLoc coords then "@"
-  else if enemy_here room coords <> None then "X"
-    (* enemies currently only represented as Xs*)
   else
     let bomb =
       List.find_opt (fun bomb -> Coords.equal bomb.position coords) room.bombs
@@ -57,6 +55,8 @@ let coords_to_string room (coords : Coords.t) =
     | Some b -> string_of_int b.fuse
     | None ->
         if Explosion.tile_is_exploding coords room.explosions then "*"
+        else if enemy_here room coords <> None then "X"
+              (* enemies currently only represented as Xs*)
         else tile_to_string room.tiles.(coords.y).(coords.x)
 
 let to_string_matrix room =
@@ -80,15 +80,15 @@ let json_to_enemies lst =
   Yojson.Safe.Util.(
     lst |> to_list
     |> List.map (fun json_enemy ->
-           (Enemies.create
+           Enemies.create
              {
                x = to_int (member "start_x_coord" json_enemy);
                y = to_int (member "start_y_coord" json_enemy);
-             } 
+             }
              (match to_string (member "enemy_type" json_enemy) with
              | "Ghost" -> Enemies.Ghost
-             | _ -> failwith "Unknown enemy type")
-             )))(*Enemies.enemy_type*)
+             | _ -> failwith "Unknown enemy type")))
+(*Enemies.enemy_type*)
 
 let load_room_from_file filename =
   let get_from_json key =
