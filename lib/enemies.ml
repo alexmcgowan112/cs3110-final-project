@@ -1,3 +1,5 @@
+open Connections
+
 type enemy_type = Ghost
 
 type t = {
@@ -49,49 +51,47 @@ let enemy_at_pos coords enemies =
       | Some e -> e.position = coords)
     enemies
 
-let next_move target this all_enemies =
-  (* Placeholder logic for next move. Replace an A* closest path algorithm. This
-     does not yet guard against walls lol*)
-  (* TODO enemies will not move to a space that already has an enemy in it, 
-  but 2 enemies can move to the same space at the same time. Probably fix.*)
-  let dx =
-    if
-      target.Coords.x > this.position.Coords.x
-      && not
-           (enemy_at_pos
-              { x = this.position.Coords.x + 1; y = this.position.Coords.y }
-              all_enemies)
-    then 1
-    else if
-      target.Coords.x < this.position.Coords.x
-      && not
-           (enemy_at_pos
-              { x = this.position.Coords.x - 1; y = this.position.Coords.y }
-              all_enemies)
-    then -1
-    else 0
-  in
-  let dy =
-    if
-      target.Coords.y > this.position.Coords.y
-      && not
-           (enemy_at_pos
-              { x = this.position.Coords.x; y = this.position.Coords.y + 1 }
-              all_enemies)
-    then 1
-    else if
-      target.Coords.y < this.position.Coords.y
-      && not
-           (enemy_at_pos
-              { x = this.position.Coords.x; y = this.position.Coords.y - 1 }
-              all_enemies)
-    then -1
-    else 0
-  in
-  {
-    Coords.x = this.position.Coords.x + dx;
-    Coords.y = this.position.Coords.y + dy;
-  }
+let bfs_next_step g start goal all_enemies =
+  if start = goal then None
+  else
+    let pred = Hashtbl.create 16 in
+    let visited = Hashtbl.create 16 in
+    let queue = Queue.create () in
+
+    Queue.push start queue;
+    Hashtbl.add visited start ();
+
+    let found = ref false in
+
+    while (not (Queue.is_empty queue)) && not !found do
+      let v = Queue.pop queue in
+      G.iter_succ
+        (fun u ->
+          if not (Hashtbl.mem visited u) then begin
+            Hashtbl.add visited u ();
+            Hashtbl.add pred u v;
+            Queue.push u queue;
+            if u = goal then found := true
+          end)
+        g v
+    done;
+
+    if not (Hashtbl.mem pred goal) then None
+    else
+      let rec backtrack current =
+        let parent = Hashtbl.find pred current in
+        if parent = start then Some current else backtrack parent
+      in
+      match backtrack goal with
+      | Some step -> if enemy_at_pos step all_enemies then None else Some step
+      | None -> None
+
+let next_move target this room_graph all_enemies =
+  let curr = get_position this in
+  let potential = bfs_next_step room_graph curr target all_enemies in
+  match potential with
+  | None -> curr
+  | Some next -> next
 
 (* I updated this file to not take the rooms directly and instead just take
    whatever part they need (ie. player coords, string representation, etc) to
@@ -110,66 +110,20 @@ let neighbors str_matrix (c : Coords.t) =
       else None)
     deltas
 
-let find_path room_str start goal =
-  if Coords.equal start goal then [ start ]
-  else
-    let open Queue in
-    let q = Queue.create () in
-    let came_from = Hashtbl.create 100 in
-    let visited = Hashtbl.create 100 in
-    Queue.add start q;
-    Hashtbl.add visited (start.x, start.y) true;
-    let rec search () =
-      if Queue.is_empty q then None
-      else
-        let curr = Queue.take q in
-        if Coords.equal curr goal then Some curr
-        else begin
-          List.iter
-            (fun n ->
-              let key = (n.Coords.x, n.Coords.y) in
-              if not (Hashtbl.mem visited key) then begin
-                Hashtbl.add visited key true;
-                Hashtbl.add came_from key curr;
-                Queue.add n q
-              end)
-            (neighbors room_str curr);
-          search ()
-        end
-    in
-    match search () with
-    | None -> []
-    | Some _ ->
-        let rec backtrack curr acc =
-          if Coords.equal curr start then List.rev (curr :: acc)
-          else
-            let prev = Hashtbl.find came_from (curr.x, curr.y) in
-            backtrack prev (curr :: acc)
-        in
-        backtrack goal []
-
-let next_move2 goal room_str this =
-  let start = this.position in
-  let path = find_path room_str start goal in
-  match path with
-  | [] -> start
-  | [ _ ] -> start
-  | _ :: h :: _ -> h
-
 let take_damage this damage =
   this.health <- this.health - damage;
   if this.health < 0 then this.health <- 0
 
 let is_alive this = this.health > 0
 
-let move_or_attack enemy player_loc player all_enemies =
+let move_or_attack enemy player_loc player room_graph all_enemies =
   if enemy.can_act then
     if Coords.chebyshev_dist enemy.position player_loc <= enemy.atk_range then
       Player.damage player enemy.atk_damage
     else
       move enemy
         (match enemy.enemy_type with
-        | Ghost -> next_move player_loc enemy all_enemies);
+        | Ghost -> next_move player_loc enemy room_graph all_enemies);
   enemy.can_act <- not enemy.can_act;
   (* enemy can do something every other turn (to make it easier for the
      player)*)

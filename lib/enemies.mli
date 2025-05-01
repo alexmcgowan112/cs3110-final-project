@@ -1,7 +1,5 @@
 type t
-
-type enemy_type = Ghost
-(** The type of enemy. *)
+type enemy_type = Ghost  (** The type of enemy. *)
 
 val create : Coords.t -> enemy_type -> t
 (** [create pos] makes a new enemy at [pos] *)
@@ -12,10 +10,10 @@ val move : t -> Coords.t -> unit
 val get_position : t -> Coords.t
 (** [get_position enemy] gets the current position of [enemy]. *)
 
-val next_move : Coords.t -> t -> t option array -> Coords.t
-(** [next_move player_loc enemy all_enemies] calculates a move for [enemy] based
-    on [target] and [all_enemies]. This isn't used yet but can theoretically be
-    called by room. *)
+val next_move : Coords.t -> t -> Connections.G.t -> t option array -> Coords.t
+(** [next_move player_loc enemy room_graph all_enemies] calculates a move for
+    [enemy] based on [target] and [all_enemies]. This isn't used yet but can
+    theoretically be called by room. *)
 
 val take_damage : t -> int -> unit
 (** [take_damage enemy amount] subtracts [amount] from the health of [enemy]. *)
@@ -23,7 +21,8 @@ val take_damage : t -> int -> unit
 val is_alive : t -> bool
 (** [is_alive enemy] determines if the health of [enemy] is still above 0. *)
 
-val move_or_attack : t -> Coords.t -> Player.t -> t option array -> t
-(** [move_or_attack enemy player_loc player all_enemies] updates [enemy], based
-    off what it did this turn. [player] is modified in place if it took damage
-    from [enemy]. *)
+val move_or_attack :
+  t -> Coords.t -> Player.t -> Connections.G.t -> t option array -> t
+(** [move_or_attack enemy player_loc player room_graph all_enemies] updates
+    [enemy], based off what it did this turn. [player] is modified in place if
+    it took damage from [enemy]. *)

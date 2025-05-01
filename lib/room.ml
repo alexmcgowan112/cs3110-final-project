@@ -1,4 +1,4 @@
-module G = Graph.Imperative.Graph.Concrete (Coords)
+open Connections
 
 type tile =
   | Empty
@@ -198,7 +198,9 @@ let update_enemy room player e =
         Explosion.tile_is_exploding (Enemies.get_position enemy) room.explosions
       then None (* right now, enemies insta-die when an explosion hits them. *)
       else
-        Some (Enemies.move_or_attack enemy room.playerLoc player room.enemies)
+        Some
+          (Enemies.move_or_attack enemy room.playerLoc player room.graph
+             room.enemies)
 
 let update_enemies room player =
   Array.map_inplace (update_enemy room player) room.enemies
