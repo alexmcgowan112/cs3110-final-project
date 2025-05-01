@@ -169,19 +169,19 @@ let hud_tests =
   [
     ( "command palette displays the help menu when asked" >:: fun _ ->
       let dungeon = Dungeon.create_test () in
-      let _ =
-        Game.test_input_handling ~cmd_palette_str:"help" dungeon Keyboard.Enter
-      in
       assert_equal
         (String.concat "\n"
            (BatList.of_enum (BatFile.lines_of "../data/help.txt")))
-        (Dungeon.hud_text dungeon) ~printer:Fun.id );
+        (Option.get
+           (Game.test_input_handling ~cmd_palette_str:"help" dungeon
+              Keyboard.Enter))
+        ~printer:Fun.id );
   ]
 
 let enemy_tests =
   [
     ( "Default enemy has expected stats" >:: fun _ ->
-      let enemy = Enemies.create { x = 5; y = 5 } in
+      let enemy = Enemies.create { x = 5; y = 5 } Enemies.Ghost in
       assert_equal
         { Coords.x = 5; Coords.y = 5 }
         (Enemies.get_position enemy)

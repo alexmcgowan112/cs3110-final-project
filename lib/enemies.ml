@@ -164,8 +164,7 @@ let move_or_attack enemy player_loc player all_enemies =
     else
       move enemy
         (match enemy.enemy_type with
-        | Ghost -> next_move player_loc enemy all_enemies
-        | _ -> failwith "enemy type not implemented yet");
+        | Ghost -> next_move player_loc enemy all_enemies);
   enemy.can_act <- not enemy.can_act;
   (* enemy can do something every other turn (to make it easier for the
      player)*)
