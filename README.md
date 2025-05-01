@@ -1,5 +1,5 @@
-### Lines of Code: 993/1600
+### Lines of Code: 1046/1600
 
-### Coverage: 65.71%/80%
+### Coverage: 66.51%/80%
 
 - Run `./updateReadme.sh` to update these statistics
