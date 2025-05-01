@@ -10,4 +10,5 @@ Numbers represent bombs (and how long until they explode)
 
 + is an item
 v is armor
-/ is a weapon
+$ makes your bombs radius bigger
+~ makes your bombs fuse shorter

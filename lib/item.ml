@@ -41,5 +41,5 @@ let to_string item =
   match item.stats with
   | Item -> "+"
   | Armor def -> "v"
-  | BiggerRadius -> "B"
-  | ShorterFuse -> "S"
+  | BiggerRadius -> "$"
+  | ShorterFuse -> "~"
