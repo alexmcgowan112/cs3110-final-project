@@ -11,5 +11,25 @@
       "start_y_coord": 2,
       "enemy_type": "Ghost"}
   ],
+  "items" : [
+    {
+      "type": "armor",
+      "def": 2,
+      "x_coord": 5,
+      "y_coord": 5
+    },
+    {
+      "type": "biggerRadius",
+      "def": 2,
+      "x_coord": 5,
+      "y_coord": 2
+    },
+    {
+      "type": "shorterFuse",
+      "def": 2,
+      "x_coord": 3,
+      "y_coord": 3
+    }
+  ],
   "layout": "data/rooms/medium_dungeon/start.rm"
 }

@@ -114,10 +114,12 @@ let get_pos_in_new_room old_room_num new_room =
 (*TODO what if each room has multiple exits that connect? right now it just
   picks the first exit that matches *)
 
+let player dungeon = dungeon.player
+
 let move_player dungeon direction =
   let curr_room = dungeon.rooms.(dungeon.current_room) in
   match will_this_move_lead_to_an_exit dungeon direction with
-  | None -> Room.move_player curr_room.room direction
+  | None -> Room.move_player curr_room.room direction (player dungeon)
   | Some exit ->
       let old_room_num = dungeon.current_room in
       dungeon.current_room <- exit.to_room;
@@ -126,4 +128,3 @@ let move_player dungeon direction =
 (* TODO add check that the new position is correct? *)
 
 let hud_text dungeon = dungeon.hud_text
-let player dungeon = dungeon.player

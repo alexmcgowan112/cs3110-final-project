@@ -25,9 +25,6 @@ let window =
   if Curses.has_colors () then new_colors ();
   w
 
-(*let print_from_file path = BatEnum.iter print_endline (BatFile.lines_of
-  path)*)
-
 let dungeon = Dungeon.load_dungeon_from_file "data/dungeons/medium.json"
 
 (*TODO: temporary function. modify when changing implementation in future*)
@@ -82,7 +79,7 @@ let read_int_input prompt y x =
 
 let print_game_over () =
   ignore (Curses.endwin ());
-  print_endline "\n------------\nYou Died :(\n------------\n\n"
+  print_endline "\n------------\n\rYou Died :(\n\r------------\n\r"
 
 let rec game_loop () =
   print_current_room ();
@@ -90,4 +87,38 @@ let rec game_loop () =
   let game_continue = Game.process_world dungeon in
   if game_continue then game_loop () else print_game_over ()
 
-let () = game_loop ()
+let main_menu () =
+  let get_menu_from_file path =
+    "\n"
+    ^ (BatFile.lines_of path |> BatList.of_enum
+      |> List.map (fun s -> "  " ^ s)
+      |> String.concat "\n")
+    ^ "\n\n\n\
+      \  (Press space to start or any other key to go back to the main menu!)"
+  in
+
+  let start, help =
+    (get_menu_from_file "data/start.txt", get_menu_from_file "data/help.txt")
+  in
+
+  let on_start = ref true in
+
+  let rec main_menu_loop () =
+    Curses.erase ();
+    Curses.clearok window false;
+    ignore (Curses.addstr (if !on_start then start else help));
+    ignore (Curses.refresh ());
+    match Curses.getch () with
+    | 113 (* q *) ->
+        Curses.endwin ();
+        exit 0
+    | 32 (* space *) -> game_loop ()
+    | 409 (* scroll *) -> main_menu_loop ()
+    | _ ->
+        on_start := not !on_start;
+        main_menu_loop ()
+  in
+
+  main_menu_loop ()
+
+let () = main_menu ()

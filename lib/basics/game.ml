@@ -42,23 +42,14 @@ let command_palette ?(test_input_string = "") dungeon =
 
 let rec input_handling ?(cmd_palette_str = "") dungeon input =
   match input with
-  | Keyboard.Up ->
-      move_player dungeon Keyboard.Up;
-      None
-  | Keyboard.Down ->
-      move_player dungeon Keyboard.Down;
-      None
-  | Keyboard.Right ->
-      move_player dungeon Keyboard.Right;
-      None
-  | Keyboard.Left ->
-      move_player dungeon Keyboard.Left;
+  | Keyboard.Up | Keyboard.Down | Keyboard.Right | Keyboard.Left ->
+      move_player dungeon input;
       None
   | Keyboard.B ->
-      Room.place_bomb (Dungeon.current_room dungeon);
+      Room.place_bomb (Dungeon.current_room dungeon) (Dungeon.player dungeon);
       None
   | Keyboard.Space ->
-      Room.wait (Dungeon.current_room dungeon);
+      Room.wait (Dungeon.current_room dungeon) (Dungeon.player dungeon);
       None
   | Keyboard.Enter ->
       if cmd_palette_str <> "" then
@@ -73,19 +64,20 @@ let handle_input dungeon =
   let input = Input.read_input () in
   input_handling dungeon input
 
-let damage_player () = failwith "TODO"
 let timestep = ref 0
 
 let hud_text dungeon =
   "Health: "
   ^ string_of_int (Player.health (Dungeon.player dungeon))
-  ^ "\ntimestep: " ^ string_of_int !timestep
+  ^ " | Armor: "
+  ^ string_of_int (Player.total_armor (Dungeon.player dungeon))
 
 (* [process_world dungeon] now returns a bool indicating if the game is still
    going (i.e. the player's health > 0)*)
 let process_world dungeon =
   (*main game loop*)
   let cmd_palette_display = handle_input dungeon in
+  Room.update_items (Dungeon.current_room dungeon) (Dungeon.player dungeon);
   Room.update_enemies (Dungeon.current_room dungeon) (Dungeon.player dungeon);
   Room.explode (Dungeon.current_room dungeon);
   Dungeon.set_hud_text dungeon
@@ -94,7 +86,6 @@ let process_world dungeon =
     match cmd_palette_display with
     | Some msg -> "\n" ^ msg
     | None -> "\nPress Enter to open the command palette.");
-  timestep := !timestep + 1;
   if Player.is_alive (Dungeon.player dungeon) then true else false
 
 let test_input_handling ?(cmd_palette_str = "") =

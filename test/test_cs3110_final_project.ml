@@ -23,6 +23,11 @@ let coords_tests =
       in
       assert_coords_not_equal { x = 5; y = 5 } { x = 6; y = 5 };
       assert_coords_not_equal { x = 5; y = 5 } { x = 5; y = 6 } );
+    ( "hash function obeys equality" >:: fun _ ->
+      assert_bool "hash function gives the same value for equal coords"
+        (Coords.hash { x = 5; y = 5 } = Coords.hash { x = 5; y = 5 });
+      assert_bool "hash function gives a diffent value for non-equal coords"
+        (Coords.hash { x = 0; y = 0 } <> Coords.hash { x = 5; y = 5 }) );
     ( "adding two coordinates is a coordinate with the elements summed"
     >:: fun _ ->
       assert_equal
@@ -208,9 +213,41 @@ let game_tests =
         (Game.process_world dungeon) );
   ]
 
+let item_tests =
+  [
+    ( "test armor" >:: fun _ ->
+      let player = Player.create () in
+      assert_equal 0 (Player.total_armor player) ~printer:string_of_int;
+
+      let armor_item1 = Item.create_item 1 (Armor { def = ref 10 }) None in
+      assert_equal (Some 10) (Item.get_defense armor_item1) ~printer:(fun i ->
+          Option.get i |> string_of_int);
+      Player.equip player armor_item1;
+      assert_equal 10 (Player.total_armor player) ~printer:string_of_int;
+
+      let armor_item2 = Item.create_item 2 (Armor { def = ref 5 }) None in
+      assert_equal (Some 5) (Item.get_defense armor_item2) ~printer:(fun i ->
+          Option.get i |> string_of_int);
+      Player.equip player armor_item2;
+      assert_equal 15 (Player.total_armor player) ~printer:string_of_int;
+
+      let non_armor_item = Item.create_item 3 Item None in
+      assert_equal None (Item.get_defense non_armor_item);
+      Player.equip player non_armor_item;
+      assert_equal 15 (Player.total_armor player) ~printer:string_of_int;
+
+      Player.damage player 4;
+      assert_equal 11 (Player.total_armor player) ~printer:string_of_int;
+      assert_equal 5 (Player.health player) ~printer:string_of_int;
+
+      Player.damage player 12;
+      assert_equal 0 (Player.total_armor player) ~printer:string_of_int;
+      assert_equal 4 (Player.health player) ~printer:string_of_int );
+  ]
+
 let tests =
   "test suite"
   >::: coords_tests @ keyboard_tests @ room_tests @ explosion_tests @ hud_tests
-       @ enemy_tests @ game_tests
+       @ enemy_tests @ game_tests @ item_tests
 
 let _ = run_test_tt_main tests

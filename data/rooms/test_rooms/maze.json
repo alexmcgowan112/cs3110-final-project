@@ -5,5 +5,6 @@
   "start_y_coord": 1,
   "enemy_type": "Ghost"}
   ],
+  "items":[],
   "layout": "data/rooms/test_rooms/maze.rm"
 }

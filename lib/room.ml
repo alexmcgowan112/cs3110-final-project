@@ -17,6 +17,7 @@ type t = {
   mutable bombs : bomb list;
   mutable enemies : Enemies.t option array;
   graph : G.t;
+  mutable items : Item.t list;
 }
 (** AF: [{tiles; playerLoc; explosions; bombs}] represents a room with [tiles],
     a player at [playerLoc] and a list current explosions [explosions], and
@@ -44,6 +45,19 @@ let enemy_here room coords =
   if List.length enemies_at_loc <> 0 then Some (List.hd enemies_at_loc)
   else None
 
+(*[item_here room coords] is Some item if there's an item at the provided coords
+  in this room and None otherwise*)
+let item_here room coords =
+  let items_at_loc =
+    List.filter
+      (fun item ->
+        match Item.get_location item with
+        | None -> false
+        | Some loc -> loc = coords)
+      room.items
+  in
+  if List.length items_at_loc <> 0 then Some (List.hd items_at_loc) else None
+
 let coords_to_string room (coords : Coords.t) =
   if
     coords.y < 0 || coords.x < 0
@@ -57,11 +71,14 @@ let coords_to_string room (coords : Coords.t) =
     in
     match bomb with
     | Some b -> string_of_int b.fuse
-    | None ->
-        if Explosion.tile_is_exploding coords room.explosions then "*"
-        else if enemy_here room coords <> None then "X"
-          (* enemies currently only represented as Xs*)
-        else tile_to_string room.tiles.(coords.y).(coords.x)
+    | None -> (
+        match item_here room coords with
+        | Some item -> Item.to_string item
+        | None ->
+            if Explosion.tile_is_exploding coords room.explosions then "*"
+            else if enemy_here room coords <> None then "X"
+              (* enemies currently only represented as Xs*)
+            else tile_to_string room.tiles.(coords.y).(coords.x))
 
 let to_string_matrix room =
   Array.mapi
@@ -76,6 +93,42 @@ let read_file_to_tiles file =
     (fun s ->
       Array.init (String.length s) (fun i -> char_to_tile (String.get s i)))
     (BatArray.of_enum (BatFile.lines_of file))
+
+let json_to_items lst =
+  Yojson.Safe.Util.(
+    lst |> to_list
+    |> List.map (fun json_item ->
+           match to_string (member "type" json_item) with
+           | "item" ->
+               Item.create_item 9999 Item.Item
+                 (Some
+                    {
+                      x = to_int (member "x_coord" json_item);
+                      y = to_int (member "y_coord" json_item);
+                    })
+           | "armor" ->
+               Item.create_item 9999
+                 (Item.Armor { def = ref (to_int (member "def" json_item)) })
+                 (Some
+                    {
+                      x = to_int (member "x_coord" json_item);
+                      y = to_int (member "y_coord" json_item);
+                    })
+           | "biggerRadius" ->
+               Item.create_item 9999 Item.BiggerRadius
+                 (Some
+                    {
+                      x = to_int (member "x_coord" json_item);
+                      y = to_int (member "y_coord" json_item);
+                    })
+           | "shorterFuse" ->
+               Item.create_item 9999 Item.ShorterFuse
+                 (Some
+                    {
+                      x = to_int (member "x_coord" json_item);
+                      y = to_int (member "y_coord" json_item);
+                    })
+           | _ -> failwith "invalid room json - unknown item type"))
 
 (* the enemies in a room are determined by the room's JSON file. Enemies are
    stored as a list of dictionaries. Each dictionary contains start_x_coord and
@@ -130,6 +183,7 @@ let load_room_from_file filename =
     }
   in
   let enemies = get_from_json "enemies" |> json_to_enemies in
+  let items = get_from_json "items" |> json_to_items in
   let tiles =
     Yojson.Safe.Util.to_string (get_from_json "layout") |> read_file_to_tiles
   in
@@ -143,6 +197,7 @@ let load_room_from_file filename =
       bombs = [];
       enemies;
       graph = tiles_to_graph tiles;
+      items;
     }
 
 let new_room () = load_room_from_file "data/rooms/test_rooms/simple.json"
@@ -155,24 +210,29 @@ let explode room =
 
 let exploding room = not (List.is_empty room.explosions)
 
-let place_bomb room =
+let place_bomb room player =
   if
     not
       (List.exists
          (fun bomb -> Coords.equal room.playerLoc bomb.position)
          room.bombs)
-  then room.bombs <- { position = room.playerLoc; fuse = 6 } :: room.bombs
+  then
+    room.bombs <-
+      { position = room.playerLoc; fuse = Player.fuse_time player }
+      :: room.bombs
 
-let process_bombs room =
+let process_bombs room player =
   List.iter
     (fun b ->
       b.fuse <- b.fuse - 1;
       if b.fuse = 0 then
-        room.explosions <- Explosion.create b.position 3 :: room.explosions)
+        room.explosions <-
+          Explosion.create b.position (Player.blast_radius player)
+          :: room.explosions)
     room.bombs;
   room.bombs <- List.filter (fun b -> b.fuse > 0) room.bombs
 
-let move_player room direction =
+let move_player room direction player =
   let x, y = (room.playerLoc.x, room.playerLoc.y) in
   (match direction with
   | Keyboard.Up ->
@@ -188,7 +248,7 @@ let move_player room direction =
       if x < Array.length room.tiles.(0) - 1 && room.tiles.(y).(x + 1) <> Wall
       then room.playerLoc <- { x = x + 1; y }
   | _ -> ());
-  process_bombs room
+  process_bombs room player
 
 let update_enemy room player e =
   match e with
@@ -204,6 +264,30 @@ let update_enemy room player e =
 
 let update_enemies room player =
   Array.map_inplace (update_enemy room player) room.enemies
+
+(**[remove_from_room room item] removes the item from the room*)
+let remove_from_room room item =
+  room.items <- List.filter (fun curr_item -> curr_item <> item) room.items
+
+let update_items room player =
+  match item_here room room.playerLoc with
+  | None -> ()
+  | Some item ->
+      remove_from_room room item;
+      Item.clear_location item;
+      Player.equip player item
+
+(**[remove_from_room room item] removes the item from the room*)
+let remove_from_room room item =
+  room.items <- List.filter (fun curr_item -> curr_item <> item) room.items
+
+let update_items room player =
+  match item_here room room.playerLoc with
+  | None -> ()
+  | Some item ->
+      remove_from_room room item;
+      Item.clear_location item;
+      Player.equip player item
 
 let wait = process_bombs
 let set_player_pos room loc = room.playerLoc <- loc
