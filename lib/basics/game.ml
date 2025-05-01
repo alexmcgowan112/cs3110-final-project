@@ -70,13 +70,16 @@ let timestep = ref 0
 let hud_text dungeon =
   "Health: "
   ^ string_of_int (Player.health (Dungeon.player dungeon))
-  ^ "\ntimestep: " ^ string_of_int !timestep
+  ^ " | Armor: "
+  ^ string_of_int (Player.total_armor (Dungeon.player dungeon))
 
 (* [process_world dungeon] now returns a bool indicating if the game is still
    going (i.e. the player's health > 0)*)
 let process_world dungeon =
   (*main game loop*)
   let cmd_palette_display = handle_input dungeon in
+  Room.explode (Dungeon.current_room dungeon);
+  Room.update_items (Dungeon.current_room dungeon) (Dungeon.player dungeon);
   Room.update_enemies (Dungeon.current_room dungeon) (Dungeon.player dungeon);
   Room.explode (Dungeon.current_room dungeon);
   Dungeon.set_hud_text dungeon
@@ -85,7 +88,6 @@ let process_world dungeon =
     match cmd_palette_display with
     | Some msg -> "\n" ^ msg
     | None -> "\nPress Enter to open the command palette.");
-  timestep := !timestep + 1;
   if Player.is_alive (Dungeon.player dungeon) then true else false
 
 let test_input_handling ?(cmd_palette_str = "") =

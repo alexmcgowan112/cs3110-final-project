@@ -17,6 +17,7 @@ type t = {
   mutable bombs : bomb list;
   mutable enemies : Enemies.t option array;
   graph : G.t;
+  mutable items : Item.t list;
 }
 (** AF: [{tiles; playerLoc; explosions; bombs}] represents a room with [tiles],
     a player at [playerLoc] and a list current explosions [explosions], and
@@ -43,6 +44,19 @@ let enemy_here room coords =
   in
   if List.length enemies_at_loc <> 0 then Some (List.hd enemies_at_loc)
   else None
+
+(*[item_here room coords] is Some item if there's an item at the provided coords
+  in this room and None otherwise*)
+let item_here room coords =
+  let items_at_loc =
+    List.filter
+      (fun item ->
+        match Item.get_location item with
+        | None -> false
+        | Some loc -> loc = coords)
+      room.items
+  in
+  if List.length items_at_loc <> 0 then Some (List.hd items_at_loc) else None
 
 let coords_to_string room (coords : Coords.t) =
   if
@@ -76,6 +90,36 @@ let read_file_to_tiles file =
     (fun s ->
       Array.init (String.length s) (fun i -> char_to_tile (String.get s i)))
     (BatArray.of_enum (BatFile.lines_of file))
+
+let json_to_items lst =
+  Yojson.Safe.Util.(
+    lst |> to_list
+    |> List.map (fun json_item ->
+           match to_string (member "type" json_item) with
+           | "item" ->
+               Item.create_item 9999 Item.Item
+                 (Some
+                    {
+                      x = to_int (member "x_coord" json_item);
+                      y = to_int (member "y_coord" json_item);
+                    })
+           | "armor" ->
+               Item.create_item 9999
+                 (Item.Armor { def = ref (to_int (member "def" json_item)) })
+                 (Some
+                    {
+                      x = to_int (member "x_coord" json_item);
+                      y = to_int (member "y_coord" json_item);
+                    })
+           | "weapon" ->
+               Item.create_item 9999
+                 (Item.Weapon { atk = to_int (member "atk" json_item) })
+                 (Some
+                    {
+                      x = to_int (member "x_coord" json_item);
+                      y = to_int (member "y_coord" json_item);
+                    })
+           | _ -> failwith "invalid room json - unknown item type"))
 
 (* the enemies in a room are determined by the room's JSON file. Enemies are
    stored as a list of dictionaries. Each dictionary contains start_x_coord and
@@ -130,6 +174,7 @@ let load_room_from_file filename =
     }
   in
   let enemies = get_from_json "enemies" |> json_to_enemies in
+  let items = get_from_json "items" |> json_to_items in
   let tiles =
     Yojson.Safe.Util.to_string (get_from_json "layout") |> read_file_to_tiles
   in
@@ -143,6 +188,7 @@ let load_room_from_file filename =
       bombs = [];
       enemies;
       graph = tiles_to_graph tiles;
+      items
     }
 
 let new_room () = load_room_from_file "data/rooms/test_rooms/simple.json"
@@ -202,6 +248,30 @@ let update_enemy room player e =
 
 let update_enemies room player =
   Array.map_inplace (update_enemy room player) room.enemies
+
+(**[remove_from_room room item] removes the item from the room*)
+let remove_from_room room item =
+  room.items <- List.filter (fun curr_item -> curr_item <> item) room.items
+
+let update_items room player =
+  match item_here room room.playerLoc with
+  | None -> ()
+  | Some item ->
+      remove_from_room room item;
+      Item.clear_location item;
+      Player.equip player item
+
+(**[remove_from_room room item] removes the item from the room*)
+let remove_from_room room item =
+  room.items <- List.filter (fun curr_item -> curr_item <> item) room.items
+
+let update_items room player =
+  match item_here room room.playerLoc with
+  | None -> ()
+  | Some item ->
+      remove_from_room room item;
+      Item.clear_location item;
+      Player.equip player item
 
 let wait = process_bombs
 let set_player_pos room loc = room.playerLoc <- loc

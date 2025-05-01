@@ -3,5 +3,6 @@
   "playerStartY": 6,
   "enemies" : [
   ],
+  "items": [],
   "layout": "data/rooms/medium_dungeon/crossroad.rm"
 }

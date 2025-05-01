@@ -3,5 +3,6 @@
   "playerStartY": 17,
   "enemies" : [
   ],
+  "items":[],
   "layout": "data/rooms/medium_dungeon/big_circle.rm"
 }

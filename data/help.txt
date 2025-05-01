@@ -7,3 +7,7 @@ Press Q or type 'quit' in the command palette to exit.
 O is a door to another room
 Numbers represent bombs (and how long until they explode)
 * is an exploding tile
+
++ is an item
+v is armor
+/ is a weapon

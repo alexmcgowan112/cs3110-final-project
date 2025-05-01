@@ -3,5 +3,6 @@
   "playerStartY": 5,
   "enemies" : [
   ],
+  "items":[],
   "layout": "data/rooms/test_rooms/maze.rm"
 }

@@ -44,3 +44,8 @@ val set_player_pos : t -> Coords.t -> unit
 val to_string_matrix : t -> string array array
 (** [to_string_matrix room] outputs a string representation of [room] as a
     matrix. Each tile is represented by a single character. *)
+
+val update_items : t -> Player.t -> unit
+(**[update_items room player] equips the item the player is standing on to the
+   player and removes it from the room (assuming the player is standing on an
+   item)*)
