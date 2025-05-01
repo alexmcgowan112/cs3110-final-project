@@ -42,17 +42,8 @@ let command_palette ?(test_input_string = "") dungeon =
 
 let rec input_handling ?(cmd_palette_str = "") dungeon input =
   match input with
-  | Keyboard.Up ->
-      move_player dungeon Keyboard.Up;
-      None
-  | Keyboard.Down ->
-      move_player dungeon Keyboard.Down;
-      None
-  | Keyboard.Right ->
-      move_player dungeon Keyboard.Right;
-      None
-  | Keyboard.Left ->
-      move_player dungeon Keyboard.Left;
+  | Keyboard.Up | Keyboard.Down | Keyboard.Right | Keyboard.Left ->
+      move_player dungeon input;
       None
   | Keyboard.B ->
       Room.place_bomb (Dungeon.current_room dungeon);
