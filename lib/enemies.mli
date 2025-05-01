@@ -1,6 +1,9 @@
 type t
 
-val create : Coords.t -> t
+type enemy_type = Ghost
+(** The type of enemy. *)
+
+val create : Coords.t -> enemy_type -> t
 (** [create pos] makes a new enemy at [pos] *)
 
 val move : t -> Coords.t -> unit

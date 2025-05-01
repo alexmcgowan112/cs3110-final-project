@@ -80,11 +80,15 @@ let json_to_enemies lst =
   Yojson.Safe.Util.(
     lst |> to_list
     |> List.map (fun json_enemy ->
-           Enemies.create
+           (Enemies.create
              {
                x = to_int (member "start_x_coord" json_enemy);
                y = to_int (member "start_y_coord" json_enemy);
-             }))
+             } 
+             (match to_string (member "enemy_type" json_enemy) with
+             | "Ghost" -> Enemies.Ghost
+             | _ -> failwith "Unknown enemy type")
+             )))(*Enemies.enemy_type*)
 
 let load_room_from_file filename =
   let get_from_json key =

@@ -167,7 +167,7 @@ let hud_tests =
   [
     ( "command palette displays the help menu when asked" >:: fun _ ->
       let dungeon = Dungeon.create_test () in
-      let () =
+      let _ =
         Game.test_input_handling ~cmd_palette_str:"help" dungeon Keyboard.Enter
       in
       assert_equal

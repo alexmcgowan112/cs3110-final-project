@@ -1,3 +1,5 @@
+type enemy_type = Ghost
+
 type t = {
   mutable position : Coords.t;
   mutable health : int;
@@ -10,19 +12,28 @@ type t = {
   mutable can_act : bool;
       (* Tells if this enemy can make a move this turn. Currently, enemies can
          only act every other turn to make it easier for the player. *)
+  enemy_type: enemy_type
+      (* The type of enemy. Currently only Ghost. *)
 }
 (** AF: [{position; health; atk_range; atk_damage; can_act}] represents an enemy
     current at [position], with [health]. The enemy can hit the player from a
     distance of [atk_range] and does [atk_damage] when they hit the player.
     [can_act] determines if the enemy is able to act on the next timestep. *)
 
-let create coords =
+(*ghost uses next_move. goes thorugh walls zombie uses ____. does not go through
+  walls*)
+
+let create coords enemy_type=
+  match enemy_type with
+  | Ghost ->
+      (* Ghosts can go through walls *)
   {
     position = coords;
     health = 100;
     atk_range = 1;
     atk_damage = 1;
     can_act = true;
+    enemy_type = Ghost;
   }
 
 let attack enemy = enemy.atk_damage
