@@ -64,7 +64,6 @@ let handle_input dungeon =
   let input = Input.read_input () in
   input_handling dungeon input
 
-let damage_player () = failwith "TODO"
 let timestep = ref 0
 
 let hud_text dungeon =

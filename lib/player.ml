@@ -25,13 +25,14 @@ let dmg_to_armor player dmg_amount =
        (fun remaining_dmg item ->
          match Item.stats item with
          | Armor { def } ->
-             let def_pre_damage = !def in
-             def := max 0 !def - remaining_dmg;
-             max 0 remaining_dmg - def_pre_damage
+             let absorb = min remaining_dmg !def in
+             def := !def - absorb;
+             remaining_dmg - absorb
          | _ -> remaining_dmg)
        dmg_amount player.items)
 
-(**[remove_depleted_armor player] removes all the equipped armor that has 0 defense (ie is completly used up)*)
+(**[remove_depleted_armor player] removes all the equipped armor that has 0
+   defense (ie is completly used up)*)
 let remove_depleted_armor player =
   player.items <-
     List.filter
