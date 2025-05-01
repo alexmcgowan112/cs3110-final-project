@@ -1,3 +1,5 @@
+module G = Graph.Imperative.Graph.Concrete (Coords)
+
 type tile =
   | Empty
   | Wall
@@ -13,7 +15,8 @@ type t = {
   mutable playerLoc : Coords.t;
   mutable explosions : Explosion.t list;
   mutable bombs : bomb list;
-  mutable enemies : Enemies.t list;
+  mutable enemies : Enemies.t option array;
+  graph : G.t;
 }
 (** AF: [{tiles; playerLoc; explosions; bombs}] represents a room with [tiles],
     a player at [playerLoc] and a list current explosions [explosions], and
@@ -34,8 +37,9 @@ let tile_to_string = function
 (* [enemy_here room coords] is whether or not the given room contains an enemy
    at the given coordinates *)
 let enemy_here room coords =
+  let lst = List.filter_map (fun e -> e) (Array.to_list room.enemies) in
   let enemies_at_loc =
-    List.filter (fun enemy -> Enemies.get_position enemy = coords) room.enemies
+    List.filter (fun enemy -> Enemies.get_position enemy = coords) lst
   in
   if List.length enemies_at_loc <> 0 then Some (List.hd enemies_at_loc)
   else None
@@ -78,14 +82,39 @@ let read_file_to_tiles file =
    start_y_coord (and that's it for now)*)
 let json_to_enemies lst =
   Yojson.Safe.Util.(
-    lst |> to_list
-    |> List.map (fun json_enemy ->
-           Enemies.create
-             {
-               x = to_int (member "start_x_coord" json_enemy);
-               y = to_int (member "start_y_coord" json_enemy);
-             }))
+    lst |> to_list |> Array.of_list
+    |> Array.map (fun json_enemy ->
+           Some
+             (Enemies.create
+                {
+                  x = to_int (member "start_x_coord" json_enemy);
+                  y = to_int (member "start_y_coord" json_enemy);
+                })))
 
+let tiles_to_graph tiles =
+  let g = G.create () in
+  Array.iteri
+    (fun y row ->
+      Array.iteri
+        (fun x tile ->
+          if tile <> Wall then (
+            let (coords : Coords.t) = { x; y } in
+            G.add_vertex g coords;
+            List.iter
+              (fun (dx, dy) ->
+                let (neighbor : Coords.t) = { x = x + dx; y = y + dy } in
+                if
+                  neighbor.x >= 0 && neighbor.y >= 0
+                  && neighbor.x < Array.length row
+                  && neighbor.y < Array.length tiles
+                  && tiles.(neighbor.y).(neighbor.x) <> Wall
+                then G.add_edge g coords neighbor)
+              [ (-1, 0); (1, 0); (0, -1); (0, 1) ]))
+        row)
+    tiles;
+  g
+
+(* [load_room_from_file filename] loads a room from the given JSON file. *)
 let load_room_from_file filename =
   let get_from_json key =
     Yojson.Safe.from_file filename |> Yojson.Safe.Util.member key
@@ -103,7 +132,15 @@ let load_room_from_file filename =
   in
   if Array.exists (fun row -> Array.length row <> Array.length tiles.(0)) tiles
   then failwith "Layout isn't rectangular"
-  else { tiles; playerLoc; explosions = []; bombs = []; enemies }
+  else
+    {
+      tiles;
+      playerLoc;
+      explosions = [];
+      bombs = [];
+      enemies;
+      graph = tiles_to_graph tiles;
+    }
 
 let new_room () = load_room_from_file "data/rooms/test_rooms/simple.json"
 let get_enemies room = room.enemies
@@ -150,13 +187,18 @@ let move_player room direction =
   | _ -> ());
   process_bombs room
 
-let update_enemy room player enemy =
-  if Explosion.tile_is_exploding (Enemies.get_position enemy) room.explosions
-  then None (* right now, enemies insta-die when an explosion hits them. *)
-  else Some (Enemies.move_or_attack enemy room.playerLoc player room.enemies)
+let update_enemy room player e =
+  match e with
+  | None -> None
+  | Some enemy ->
+      if
+        Explosion.tile_is_exploding (Enemies.get_position enemy) room.explosions
+      then None (* right now, enemies insta-die when an explosion hits them. *)
+      else
+        Some (Enemies.move_or_attack enemy room.playerLoc player room.enemies)
 
 let update_enemies room player =
-  room.enemies <- List.filter_map (update_enemy room player) room.enemies
+  Array.map_inplace (update_enemy room player) room.enemies
 
 let wait = process_bombs
 let set_player_pos room loc = room.playerLoc <- loc

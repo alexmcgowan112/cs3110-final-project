@@ -1,6 +1,6 @@
 (library
  (name cs3110_final_project)
- (libraries curses yojson batteries)
+ (libraries curses yojson batteries ocamlgraph)
  (instrumentation
   (backend bisect_ppx)))
 

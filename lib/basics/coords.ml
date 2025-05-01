@@ -3,7 +3,13 @@ type t = {
   y : int;
 }
 
-let equal c1 c2 = c1.x = c2.x && c1.y = c2.y
+let compare c1 c2 =
+  if c1.x = c2.x then if c1.y = c2.y then 0 else if c1.x < c2.x then -1 else 1
+  else if c1.y < c2.y then -1
+  else 1
+
+let equal c1 c2 = compare c1 c2 = 0
+let hash = Hashtbl.hash
 let add c1 c2 = { x = c1.x + c2.x; y = c1.y + c2.y }
 
 let add_dir coord n = function

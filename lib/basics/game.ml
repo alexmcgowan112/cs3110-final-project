@@ -58,31 +58,6 @@ let handle_input dungeon =
 
 let damage_player () = failwith "TODO"
 
-(* I just use [enemy_loc] and [debug_info] for debugging *)
-(* [enemy_loc dungeon] gets the coordinates of the first enemy in the current room the player is in in the dungeon*)
-let enemy_loc dungeon =
-  try
-    Coords.to_string
-      (Enemies.get_position
-         (List.hd (Room.get_enemies (Dungeon.current_room dungeon))))
-  with Failure e when e = "hd" -> "no enemies"
-
-let debug_info dungeon =
-  "\nPlayer loc: "
-  ^ Coords.to_string (Room.get_player_pos (Dungeon.current_room dungeon))
-  ^ "\n1st Enemy Loc (in enemies list): " ^ enemy_loc dungeon
-  ^ "\nPlayer Health: "
-  ^ string_of_int (Player.health (Dungeon.player dungeon))
-  ^ "\n1st Enemy dist from player: "
-  ^
-  try
-    string_of_float
-      (Coords.euclid_dist
-         (Enemies.get_position
-            (List.hd (Room.get_enemies (Dungeon.current_room dungeon))))
-         (Room.get_player_pos (Dungeon.current_room dungeon)))
-  with Failure e when e = "hd" -> "no enemies"
-
 let hud_text dungeon =
   "Health: " ^ string_of_int (Player.health (Dungeon.player dungeon))
 

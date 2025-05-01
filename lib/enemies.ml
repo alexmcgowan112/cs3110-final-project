@@ -32,7 +32,12 @@ let get_position this = this.position
 (** [enemy_at_pos pos enemies] returns whether an enemy in [enemies] is present
     at [pos] *)
 let enemy_at_pos coords enemies =
-  List.exists (fun enemy -> enemy.position = coords) enemies
+  Array.exists
+    (fun enemy ->
+      match enemy with
+      | None -> false
+      | Some e -> e.position = coords)
+    enemies
 
 let next_move target this all_enemies =
   (* Placeholder logic for next move. Replace an A* closest path algorithm. This

@@ -5,6 +5,16 @@ type t = {
 (** AF: [{x; y}] represents a coordinate in a 2D space with [x] and [y]
     coordinates. *)
 
+val compare : t -> t -> int
+(** [compare c1 c2] returns a negative integer, zero, or a positive integer as
+    the coordinate [c1] is less than, equal to, or greater than the coordinate
+    [c2]. The comparison is done first by the x-coordinate and then by the
+    y-coordinate. *)
+
+val hash : t -> int
+(** [hash coord] returns a hash value for the coordinate [coord]. The hash is
+    computed based on the x and y coordinates. *)
+
 val equal : t -> t -> bool
 (** [equal c1 c2] returns true if the coordinates [c1] and [c2] are equal. *)
 
