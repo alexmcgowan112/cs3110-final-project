@@ -49,3 +49,9 @@ val update_items : t -> Player.t -> unit
 (**[update_items room player] equips the item the player is standing on to the
    player and removes it from the room (assuming the player is standing on an
    item)*)
+
+val update_player_health : t -> Player.t -> unit
+(** [update_player_health room player] updates the player's health based on
+    the items they are standing on. If the player is standing on a health item,
+    it will be added to their health. If the player is standing on a damage item,
+    it will be subtracted from their health. *)
