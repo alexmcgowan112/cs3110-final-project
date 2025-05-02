@@ -1,3 +1,5 @@
+open Cs3110_final_project
+
 module TestInput = Keyboard.MakeInput (struct
   (** [key_codes] is an array of integers representing a sequence of key codes.
   *)
@@ -58,7 +60,8 @@ let run_inputs input_list =
   let rec helper = function
     | [] -> default_room
     | h :: t ->
-        let _ = Game.test_input_handling default_dungeon h in (*TODO don't just throw away the output?*)
+        let _ = Game.test_input_handling default_dungeon h in
+        (*TODO don't just throw away the output?*)
         helper t
   in
   helper input_list

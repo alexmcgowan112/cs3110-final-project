@@ -1,3 +1,5 @@
+open Cs3110_final_project
+
 module TestInput : sig
   val read_input : unit -> Keyboard.t
   (** [read_input ()] reads a keyboard input and returns it. *)
