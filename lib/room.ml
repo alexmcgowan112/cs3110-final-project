@@ -212,14 +212,16 @@ let exploding room = not (List.is_empty room.explosions)
 
 let place_bomb room player =
   if
-    not
-      (List.exists
-         (fun bomb -> Coords.equal room.playerLoc bomb.position)
-         room.bombs)
+    (not
+       (List.exists
+          (fun bomb -> Coords.equal room.playerLoc bomb.position)
+          room.bombs))
+    && Player.bombs player > 0
   then
     room.bombs <-
       { position = room.playerLoc; fuse = Player.fuse_time player }
-      :: room.bombs
+      :: room.bombs;
+  Player.remove_bombs player 1
 
 let process_bombs room player =
   List.iter

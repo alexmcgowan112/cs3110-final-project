@@ -71,6 +71,8 @@ let hud_text dungeon =
   ^ string_of_int (Player.health (Dungeon.player dungeon))
   ^ " | Armor: "
   ^ string_of_int (Player.total_armor (Dungeon.player dungeon))
+  ^ " | Bombs: "
+  ^ string_of_int (Player.bombs (Dungeon.player dungeon))
 
 (* [process_world dungeon] now returns a bool indicating if the game is still
    going (i.e. the player's health > 0)*)

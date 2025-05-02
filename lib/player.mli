@@ -1,5 +1,14 @@
 type t
 
+val add_bombs : t -> int -> unit
+(** [add_bombs player num] adds [num] bombs to the player's bomb count *)
+
+val remove_bombs : t -> int -> unit
+(** [remove_bombs player num] removes [num] bombs from the player's bomb count *)
+
+val bombs : t -> int
+(** [bombs player] is the number of bombs the player has *)
+
 val health : t -> int
 (** [health player] is the provided player's health *)
 
