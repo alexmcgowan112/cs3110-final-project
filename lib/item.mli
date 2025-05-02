@@ -5,6 +5,8 @@ type stats =
        gets hit*)
   | BiggerRadius
   | ShorterFuse
+  | Health
+  | Bomb
 
 type t
 

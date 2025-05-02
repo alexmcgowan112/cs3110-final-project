@@ -2,6 +2,16 @@
   "playerStartX": 7,
   "playerStartY": 6,
   "enemies": [],
-  "items": [],
+  "items": [{
+    "type": "health",
+    "x_coord": 5,
+    "y_coord": 5
+  }, 
+  {
+    "type": "bomb",
+    "x_coord": 6,
+    "y_coord": 6
+  }
+],
   "layout": "data/rooms/medium_dungeon/crossroad.rm"
 }

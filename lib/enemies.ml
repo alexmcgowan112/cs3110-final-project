@@ -121,7 +121,9 @@ let random_next_move graph curr all_enemies =
 
 let next_move target this room_graph all_enemies =
   let curr = get_position this in
-  let potential = bfs_next_step room_graph curr target all_enemies in
+  let potential =
+    try bfs_next_step room_graph curr target all_enemies with exn -> Some curr
+  in
   match potential with
   | None -> random_next_move room_graph curr all_enemies
   | Some next -> next

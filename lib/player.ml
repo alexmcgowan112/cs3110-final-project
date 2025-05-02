@@ -11,10 +11,15 @@ type t = {
 let health player = player.health
 
 let create () =
-  { health = 5; items = []; base_fuse_time = 6; base_blast_radius = 1; bombs = 5 }
+  {
+    health = 5;
+    items = [];
+    base_fuse_time = 6;
+    base_blast_radius = 1;
+    bombs = 5;
+  }
 
-let add_bombs player num_bombs =
-  player.bombs <- player.bombs + num_bombs
+let add_bombs player num_bombs = player.bombs <- player.bombs + num_bombs
 
 let remove_bombs player num_bombs =
   player.bombs <- max 0 (player.bombs - num_bombs)
@@ -88,4 +93,9 @@ let damage player dmg_amount =
   player.health <- max 0 (player.health - dmg_after_armor)
 
 let is_alive player = player.health > 0
-let equip player item = player.items <- item :: player.items
+
+let equip player (item : Item.t) =
+  match Item.stats item with
+  | Health -> player.health <- 5
+  | Bomb -> add_bombs player 1
+  | i -> player.items <- item :: player.items

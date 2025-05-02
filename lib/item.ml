@@ -5,6 +5,8 @@ type stats =
        gets hit*)
   | BiggerRadius
   | ShorterFuse
+  | Health
+  | Bomb
 
 type t = {
   id : int;
@@ -36,3 +38,5 @@ let to_string item =
   | Armor def -> "v"
   | BiggerRadius -> "$"
   | ShorterFuse -> "~"
+  | Health -> "H"
+  | Bomb -> "B"

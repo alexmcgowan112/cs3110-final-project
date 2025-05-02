@@ -128,6 +128,20 @@ let json_to_items lst =
                       x = to_int (member "x_coord" json_item);
                       y = to_int (member "y_coord" json_item);
                     })
+           | "health" ->
+               Item.create_item 9999 Item.Health
+                 (Some
+                    {
+                      x = to_int (member "x_coord" json_item);
+                      y = to_int (member "y_coord" json_item);
+                    })
+           | "bomb" ->
+               Item.create_item 9999 Item.Bomb
+                 (Some
+                    {
+                      x = to_int (member "x_coord" json_item);
+                      y = to_int (member "y_coord" json_item);
+                    })
            | _ -> failwith "invalid room json - unknown item type"))
 
 (* the enemies in a room are determined by the room's JSON file. Enemies are
@@ -209,15 +223,18 @@ let explode room =
 let exploding room = not (List.is_empty room.explosions)
 
 let place_bomb room player =
-  if
-    not
-      (List.exists
-         (fun bomb -> Coords.equal room.playerLoc bomb.position)
-         room.bombs)
-  then
+  if Player.bombs player <= 0 then ()
+  else if
+    (not
+       (List.exists
+          (fun bomb -> Coords.equal room.playerLoc bomb.position)
+          room.bombs))
+    && Player.bombs player > 0
+  then (
+    Player.remove_bombs player 1;
     room.bombs <-
       { position = room.playerLoc; fuse = Player.fuse_time player }
-      :: room.bombs
+      :: room.bombs)
 
 let process_bombs room player =
   List.iter
@@ -269,9 +286,7 @@ let update_enemy room player e =
         Explosion.tile_is_exploding
           (Enemies.get_position enemy)
           room.explosions room.graph
-      then
-        Enemies.take_damage enemy
-          1 (* right now, enemies insta-die when an explosion hits them. *)
+      then Enemies.take_damage enemy 1
       else
         Some
           (Enemies.move_or_attack enemy room.playerLoc player new_graph
