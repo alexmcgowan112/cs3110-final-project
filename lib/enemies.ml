@@ -39,7 +39,6 @@ let create coords enemy_type =
         enemy_type = Ghost;
       }
 
-let attack enemy = enemy.atk_damage
 let move this coords = this.position <- coords
 let get_position this = this.position
 
@@ -53,7 +52,9 @@ let enemy_at_pos coords enemies =
       | Some e -> e.position = coords)
     enemies
 
-let bfs_next_step g start goal all_enemies =
+(** [bfs_next_step graph start goal all_enemies] figures out a move from [start]
+    in [graph] towards [goal] based on [all_enemies] *)
+let bfs_next_step room_graph start goal all_enemies =
   if start = goal then None
   else
     let pred = Hashtbl.create 16 in
@@ -75,7 +76,7 @@ let bfs_next_step g start goal all_enemies =
             Queue.push u queue;
             if u = goal then found := true
           end)
-        g v
+        room_graph v
     done;
 
     if not (Hashtbl.mem pred goal) then None

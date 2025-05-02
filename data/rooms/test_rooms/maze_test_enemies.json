@@ -1,7 +1,9 @@
 {
   "playerStartX": 5,
   "playerStartY": 5,
-  "enemies": [],
+  "enemies": [
+    { "start_x_coord": 1, "start_y_coord": 1, "enemy_type": "Ghost" }
+  ],
   "items": [],
   "layout": "../data/rooms/test_rooms/maze.rm"
 }

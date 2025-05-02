@@ -1,8 +1,7 @@
 {
   "playerStartX": 17,
   "playerStartY": 17,
-  "enemies" : [
-  ],
-  "items":[],
+  "enemies": [],
+  "items": [],
   "layout": "data/rooms/medium_dungeon/big_circle.rm"
 }

@@ -61,10 +61,11 @@ let item_here room coords =
 let coords_to_string room (coords : Coords.t) =
   if
     coords.y < 0 || coords.x < 0
-    || coords.y > Array.length room.tiles
-    || coords.x > Array.length room.tiles.(0)
+    || coords.y >= Array.length room.tiles
+    || coords.x >= Array.length room.tiles.(0)
   then "."
   else if Coords.equal room.playerLoc coords then "@"
+  else if room.tiles.(coords.y).(coords.x) = Wall then "#"
   else
     let bomb =
       List.find_opt (fun bomb -> Coords.equal bomb.position coords) room.bombs
@@ -72,13 +73,12 @@ let coords_to_string room (coords : Coords.t) =
     match bomb with
     | Some b -> string_of_int b.fuse
     | None -> (
-        match item_here room coords with
-        | Some item -> Item.to_string item
-        | None ->
-            if Explosion.tile_is_exploding coords room.explosions then "*"
-            else if enemy_here room coords <> None then "X"
-              (* enemies currently only represented as Xs*)
-            else tile_to_string room.tiles.(coords.y).(coords.x))
+        if Explosion.tile_is_exploding coords room.explosions then "*"
+        else if enemy_here room coords <> None then "X"
+        else
+          match item_here room coords with
+          | Some item -> Item.to_string item
+          | None -> tile_to_string room.tiles.(coords.y).(coords.x))
 
 let to_string_matrix room =
   Array.mapi

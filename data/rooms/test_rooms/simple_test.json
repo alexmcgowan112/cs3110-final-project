@@ -1,7 +1,7 @@
 {
   "playerStartX": 5,
   "playerStartY": 5,
-  "enemies" : [],
-  "items":[],
+  "enemies": [],
+  "items": [],
   "layout": "../data/rooms/test_rooms/simple.rm"
 }

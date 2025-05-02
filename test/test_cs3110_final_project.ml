@@ -203,6 +203,12 @@ let enemy_tests =
       Enemies.take_damage enemy 10000;
       assert_bool "Enemies die after taking too much damage"
         (not (Enemies.is_alive enemy)) );
+    ( "enemies can move properly" >:: fun _ ->
+      let dungeon =
+        Dungeon.load_dungeon_from_file "../data/dungeons/test_enemies.json"
+      in
+      let room = Dungeon.current_room dungeon in
+      Room.update_enemies room (Dungeon.player dungeon) );
   ]
 
 let game_tests =

@@ -1,17 +1,15 @@
 {
   "playerStartX": 5,
   "playerStartY": 6,
-  "enemies" : [
+  "enemies": [
     {
       "start_x_coord": 7,
       "start_y_coord": 8,
       "enemy_type": "Ghost"
     },
-    {"start_x_coord": 3,
-      "start_y_coord": 2,
-      "enemy_type": "Ghost"}
+    { "start_x_coord": 3, "start_y_coord": 2, "enemy_type": "Ghost" }
   ],
-  "items" : [
+  "items": [
     {
       "type": "armor",
       "def": 2,
