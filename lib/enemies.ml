@@ -24,8 +24,6 @@ type t = {
 (*ghost uses next_move. goes thorugh walls zombie uses ____. does not go through
   walls*)
 
-let () = Random.self_init ()
-
 let create coords enemy_type =
   match enemy_type with
   | Ghost ->
@@ -140,7 +138,7 @@ let is_alive this = this.health > 0
 
 let move_or_attack enemy player_loc player room_graph all_enemies =
   if enemy.can_act then
-    if Coords.chebyshev_dist enemy.position player_loc <= enemy.atk_range then
+    if Coords.manhattan_dist enemy.position player_loc <= enemy.atk_range then
       Player.damage player enemy.atk_damage
     else
       move enemy

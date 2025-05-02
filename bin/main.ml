@@ -1,5 +1,7 @@
 open Cs3110_final_project
 
+let () = Random.self_init ()
+
 let new_colors () =
   ignore (Curses.start_color ());
   (* Define color pairs *)
@@ -35,6 +37,10 @@ let curses_print_color (i, j) string color =
 (*TODO: temporary function. modify when changing implementation in future*)
 let match_characters i j = function
   | "*" -> curses_print_color (i, j) "*" (Curses.A.color_pair 1)
+  | "$" -> curses_print_color (i, j) "$" (Curses.A.color_pair 2)
+  | "v" -> curses_print_color (i, j) "v" (Curses.A.color_pair 6)
+  | "X" -> curses_print_color (i, j) "X" (Curses.A.color_pair 5)
+  | "~" -> curses_print_color (i, j) "~" (Curses.A.color_pair 4)
   | x -> curses_print_color (i, j) x (Curses.A.color_pair 0)
 (*0 is default, the rest match the indexes up top. ctrl+F for init_pair*)
 
