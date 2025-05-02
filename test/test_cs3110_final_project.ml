@@ -378,6 +378,19 @@ let item_tests =
 
       Player.equip player shorter_fuse_item;
       assert_equal 4 (Player.fuse_time player) ~printer:string_of_int );
+    ( "equipping Health item sets player health to 5" >:: fun _ ->
+      let player = Player.create () in
+      Player.damage player 3;
+      assert_equal 2 (Player.health player) ~printer:string_of_int;
+      let health_item = Item.create_item 0 Health None in
+      Player.equip player health_item;
+      assert_equal 5 (Player.health player) ~printer:string_of_int );
+    ( "equipping Bomb item increases player's bomb count" >:: fun _ ->
+      let player = Player.create () in
+      assert_equal 5 (Player.bombs player) ~printer:string_of_int;
+      let bomb_item = Item.create_item 1 Bomb None in
+      Player.equip player bomb_item;
+      assert_equal 6 (Player.bombs player) ~printer:string_of_int );
   ]
 
 let tests =
