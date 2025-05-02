@@ -260,6 +260,9 @@ let remove_explosion_tiles room enemy =
     new_graph;
   new_graph
 
+let add_explosion_to_room room exp = room.explosions <- exp :: room.explosions
+
+
 let update_enemy room player e =
   match e with
   | None -> None
@@ -275,7 +278,7 @@ let update_enemy room player e =
       else
         Some
           (Enemies.move_or_attack enemy room.playerLoc player new_graph
-             room.enemies)
+             room.enemies (add_explosion_to_room room))
 
 let update_enemies room player =
   Array.map_inplace (update_enemy room player) room.enemies

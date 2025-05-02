@@ -1,7 +1,14 @@
 {
   "playerStartX": 17,
   "playerStartY": 17,
-  "enemies": [],
+  "enemies": [
+    {
+      "start_x_coord": 10,
+      "start_y_coord": 10,
+      "enemy_type": "Bomber"
+    },
+    { "start_x_coord": 10, "start_y_coord": 15, "enemy_type": "Bomber" }
+  ],
   "items": [],
   "layout": "data/rooms/medium_dungeon/big_circle.rm"
 }
