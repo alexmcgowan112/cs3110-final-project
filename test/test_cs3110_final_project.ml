@@ -238,10 +238,10 @@ let enemy_tests =
         (Enemies.get_position enemy)
         ~cmp:Coords.equal ~printer:Coords.to_string;
       assert_bool "Enemies start out alive" (Enemies.is_alive enemy);
-      ignore (Enemies.take_damage enemy 1);
+      ignore (Enemies.take_damage enemy 1 (fun _ -> ()));
       assert_bool "Enemies don't instantly die from taking damage"
         (Enemies.is_alive enemy);
-      ignore (Enemies.take_damage enemy 10000);
+      ignore (Enemies.take_damage enemy 10000 (fun _ -> ()));
       assert_bool "Enemies die after taking too much damage"
         (not (Enemies.is_alive enemy)) );
     ( "Zombie moves toward player and attacks in range" >:: fun _ ->

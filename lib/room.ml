@@ -289,7 +289,7 @@ let update_enemy room player e =
         Explosion.tile_is_exploding
           (Enemies.get_position enemy)
           room.explosions room.graph
-      then Enemies.take_damage enemy 1
+      then Enemies.take_damage enemy 1 (add_explosion_to_room room)
       else
         Some
           (Enemies.move_or_attack enemy room.playerLoc player new_graph
