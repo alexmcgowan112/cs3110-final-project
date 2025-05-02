@@ -353,7 +353,9 @@ let item_tests =
       assert_equal "v"
         (Item.create_item 0 (Armor { def = ref 5 }) None |> Item.to_string);
       assert_equal "$" (Item.create_item 0 BiggerRadius None |> Item.to_string);
-      assert_equal "~" (Item.create_item 0 ShorterFuse None |> Item.to_string)
+      assert_equal "~" (Item.create_item 0 ShorterFuse None |> Item.to_string);
+      assert_equal "H" (Item.create_item 0 Health None |> Item.to_string);
+      assert_equal "B" (Item.create_item 0 Bomb None |> Item.to_string);
     );
     ( "test other upgrade items" >:: fun _ ->
       let player = Player.create () in
