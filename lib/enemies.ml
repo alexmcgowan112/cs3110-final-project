@@ -3,6 +3,7 @@ open Connections
 type enemy_type =
   | Zombie
   | Ghost
+  | Bomber
 
 type t = {
   mutable position : Coords.t;
@@ -47,6 +48,15 @@ let create coords enemy_type =
         atk_damage = 1;
         can_act = true;
         enemy_type = Ghost;
+      }
+  | "Bomber" ->
+      {
+        position = coords;
+        health = 2;
+        atk_range = 1;
+        atk_damage = 0;
+        can_act = true;
+        enemy_type = Bomber;
       }
   | _ -> failwith "Invalid enemy type. Please use either 'Zombie' or 'Ghost'."
 
@@ -145,16 +155,24 @@ let take_damage this damage =
 
 let is_alive this = this.health > 0
 
-let move_or_attack enemy player_loc player room_graph all_enemies =
-  if enemy.can_act then
-    if Coords.manhattan_dist enemy.position player_loc <= enemy.atk_range then
-      Player.damage player enemy.atk_damage
-    else
-      move enemy
-        (match enemy.enemy_type with
-        | Zombie -> next_move player_loc enemy room_graph all_enemies
-        | Ghost -> next_move_no_wall player_loc enemy all_enemies);
+let move_or_attack enemy player_loc player room_graph all_enemies add_explosion
+    =
+  (if enemy.can_act then
+     match enemy.enemy_type with
+     | Bomber ->
+         if Coords.manhattan_dist enemy.position player_loc <= enemy.atk_range
+         then (
+           add_explosion (Explosion.create enemy.position 3);
+           enemy.health <- 0)
+         else move enemy (next_move player_loc enemy room_graph all_enemies)
+     | Zombie | Ghost ->
+         if Coords.manhattan_dist enemy.position player_loc <= enemy.atk_range
+         then Player.damage player enemy.atk_damage
+         else
+           move enemy
+             (match enemy.enemy_type with
+             | Zombie -> next_move player_loc enemy room_graph all_enemies
+             | Ghost -> next_move_no_wall player_loc enemy all_enemies
+             | _ -> enemy.position));
   enemy.can_act <- not enemy.can_act;
-  (* enemy can do something every other turn (to make it easier for the
-     player)*)
   enemy
