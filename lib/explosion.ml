@@ -1,3 +1,5 @@
+open Connections
+
 type t = {
   position : Coords.t;
   max_radius : int;
@@ -14,13 +16,38 @@ let create position max_radius =
 
 let is_in_progress exp = exp.in_progress
 
-let tile_is_exploding tile explosions =
+let tile_is_exploding tile explosions graph =
   List.exists
     (fun exp ->
       exp.in_progress
       &&
-      let distance = Coords.euclid_dist exp.position tile in
-      exp.curr_radius >= int_of_float (ceil (distance -. 0.5)))
+      let visited = Hashtbl.create 100 in
+      let tiles_in_radius = ref [] in
+      let module Bfs = Connections.Search in
+      let enqueue v d =
+        if d <= exp.curr_radius + 1 then (
+          Hashtbl.replace visited v d;
+          tiles_in_radius := v :: !tiles_in_radius)
+      in
+      let rec bfs queue =
+        match queue with
+        | [] -> ()
+        | (v, d) :: rest ->
+            if (not (Hashtbl.mem visited v)) && d <= exp.curr_radius + 1 then (
+              enqueue v d;
+              let neighbors = Connections.G.succ graph v in
+              let next = List.map (fun n -> (n, d + 1)) neighbors in
+              bfs (rest @ next))
+            else bfs rest
+      in
+      bfs [ (exp.position, 0) ];
+      List.exists
+        (fun v ->
+          Coords.equal v tile
+          && exp.curr_radius
+             >= int_of_float
+                  (ceil (Coords.euclid_dist exp.position tile -. 0.5)))
+        !tiles_in_radius)
     explosions
 
 let spread exp =

@@ -72,13 +72,13 @@ let coords_to_string room (coords : Coords.t) =
     match bomb with
     | Some b -> string_of_int b.fuse
     | None -> (
-        match item_here room coords with
-        | Some item -> Item.to_string item
-        | None ->
-            if Explosion.tile_is_exploding coords room.explosions then "*"
-            else if enemy_here room coords <> None then "X"
-              (* enemies currently only represented as Xs*)
-            else tile_to_string room.tiles.(coords.y).(coords.x))
+        if Explosion.tile_is_exploding coords room.explosions room.graph then
+          "*"
+        else if enemy_here room coords <> None then "X"
+        else
+          match item_here room coords with
+          | Some item -> Item.to_string item
+          | None -> tile_to_string room.tiles.(coords.y).(coords.x))
 
 let to_string_matrix room =
   Array.mapi
@@ -257,7 +257,7 @@ let remove_explosion_tiles room enemy =
     (List.map (fun b -> b.position) room.bombs);
   G.iter_vertex
     (fun v ->
-      if Explosion.tile_is_exploding v room.explosions then
+      if Explosion.tile_is_exploding v room.explosions room.graph then
         G.remove_vertex new_graph v)
     new_graph;
   new_graph
@@ -268,7 +268,9 @@ let update_enemy room player e =
   | Some enemy ->
       let new_graph = remove_explosion_tiles room e in
       if
-        Explosion.tile_is_exploding (Enemies.get_position enemy) room.explosions
+        Explosion.tile_is_exploding
+          (Enemies.get_position enemy)
+          room.explosions room.graph
       then None (* right now, enemies insta-die when an explosion hits them. *)
       else
         Some
@@ -290,24 +292,11 @@ let update_items room player =
       Item.clear_location item;
       Player.equip player item
 
-(**[remove_from_room room item] removes the item from the room*)
-let remove_from_room room item =
-  room.items <- List.filter (fun curr_item -> curr_item <> item) room.items
-
-let update_items room player =
-  match item_here room room.playerLoc with
-  | None -> ()
-  | Some item ->
-      remove_from_room room item;
-      Item.clear_location item;
-      Player.equip player item
-
 let wait = process_bombs
 let set_player_pos room loc = room.playerLoc <- loc
 (* TODO add check that new location is valid *)
 
 let update_player_health room player =
   if
-    Explosion.tile_is_exploding (get_player_pos room) room.explosions
-  then 
-    Player.damage player 1 (*explosion damage*)
+    Explosion.tile_is_exploding (get_player_pos room) room.explosions room.graph
+  then Player.damage player 1 (*explosion damage*)

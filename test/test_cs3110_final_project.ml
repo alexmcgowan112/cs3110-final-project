@@ -143,23 +143,47 @@ let room_tests =
               ])) );
   ]
 
+let make_graph () =
+  let g = Connections.G.create () in
+  (* Add a 11x11 grid of vertices and connect them as a grid *)
+  for x = 0 to 10 do
+    for y = 0 to 10 do
+      let v = { Coords.x; y } in
+      Connections.G.add_vertex g v
+    done
+  done;
+  for x = 0 to 10 do
+    for y = 0 to 10 do
+      let v = { Coords.x; y } in
+      let neighbors = [ (x + 1, y); (x - 1, y); (x, y + 1); (x, y - 1) ] in
+      List.iter
+        (fun (nx, ny) ->
+          if nx >= 0 && nx <= 10 && ny >= 0 && ny <= 10 then
+            Connections.G.add_edge g v { Coords.x = nx; y = ny })
+        neighbors
+    done
+  done;
+  g
+
 let explosion_tests =
+  let graph = make_graph () in
   [
     ( "the center tile of an explosion explodes immediately" >:: fun _ ->
       assert_bool "Not exploding"
         (Explosion.tile_is_exploding { x = 5; y = 5 }
-           [ Explosion.create { x = 5; y = 5 } 3 ]) );
+           [ Explosion.create { x = 5; y = 5 } 3 ]
+           graph) );
     ( "a tile adjacent to an explosion explodes after 1 turn" >:: fun _ ->
       let exp = Explosion.create { x = 5; y = 5 } 3 in
       Explosion.spread exp;
       assert_bool "Not exploding"
-        (Explosion.tile_is_exploding { x = 5; y = 6 } [ exp ]) );
+        (Explosion.tile_is_exploding { x = 5; y = 6 } [ exp ] graph) );
     ( "a tile further from an explosion than its current radius does not explode"
     >:: fun _ ->
       let exp = Explosion.create { x = 5; y = 5 } 3 in
       Explosion.spread exp;
       assert_bool "Exploding"
-        (not (Explosion.tile_is_exploding { x = 7; y = 7 } [ exp ])) );
+        (not (Explosion.tile_is_exploding { x = 7; y = 7 } [ exp ] graph)) );
     ( "a newly created explosion is in progress" >:: fun _ ->
       let exp = Explosion.create { x = 5; y = 5 } 3 in
       assert_bool "Not in progress" (Explosion.is_in_progress exp) );
