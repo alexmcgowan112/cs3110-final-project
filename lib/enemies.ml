@@ -116,7 +116,7 @@ let next_move target this room_graph all_enemies =
 (* I updated this file to not take the rooms directly and instead just take
    whatever part they need (ie. player coords, string representation, etc) to
    avoid a circular import error. *)
-let neighbors str_matrix (c : Coords.t) =
+(* let neighbors str_matrix (c : Coords.t) =
   let deltas = [ (0, 1); (1, 0); (0, -1); (-1, 0) ] in
   let max_y = Array.length str_matrix - 1 in
   let max_x = Array.length str_matrix.(0) - 1 in
@@ -128,7 +128,7 @@ let neighbors str_matrix (c : Coords.t) =
         if s = "#" then None
         (* Wall *) else Some { Coords.x = nx; Coords.y = ny }
       else None)
-    deltas
+    deltas *)
 
 let take_damage this damage =
   this.health <- this.health - damage;

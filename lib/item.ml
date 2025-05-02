@@ -22,16 +22,9 @@ let get_defense armor =
 
 let get_item_id item = item.id
 
-(* [Some coords] if in a room, [None] if on the player. Currently, the item
-   doesn't know what room it's in*)
+(** [Some coords] if in a room, [None] if on the player. Currently, the item
+    doesn't know what room it's in*)
 let get_location item = item.location
-
-(* call this when the player equips an item *)
-let clear_location item = item.location <- None
-
-let drop_item item = failwith "TODO drop_item in item.ml"
-(* let room = Dungeon.current_room dungeon in let player_pos =
-   Room.get_player_pos room in item.location <- Some player_pos *)
 
 let pickup_item item = item.location <- None
 let create_item id stats location = { id; stats; location }

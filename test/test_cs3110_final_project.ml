@@ -23,6 +23,20 @@ let coords_tests =
       in
       assert_coords_not_equal { x = 5; y = 5 } { x = 6; y = 5 };
       assert_coords_not_equal { x = 5; y = 5 } { x = 5; y = 6 } );
+    ( "compare function works" >:: fun _ ->
+      assert_bool "x greater"
+        (Coords.compare { x = 5; y = 5 } { x = 0; y = 5 } > 0);
+      assert_bool "y greater"
+        (Coords.compare { x = 5; y = 5 } { x = 5; y = 0 } > 0);
+      assert_bool "x less"
+        (Coords.compare { x = 5; y = 5 } { x = 10; y = 5 } < 0);
+      assert_bool "y less"
+        (Coords.compare { x = 5; y = 5 } { x = 5; y = 10 } < 0);
+      assert_bool "both differ"
+        (Coords.compare { x = 5; y = 5 } { x = 0; y = 0 } > 0);
+      assert_equal 0
+        (Coords.compare { x = 5; y = 5 } { x = 5; y = 5 })
+        ~printer:string_of_int );
     ( "hash function obeys equality" >:: fun _ ->
       assert_bool "hash function gives the same value for equal coords"
         (Coords.hash { x = 5; y = 5 } = Coords.hash { x = 5; y = 5 });
@@ -106,7 +120,7 @@ let room_tests =
     ( "an empty room is represented by the correct string" >:: fun _ ->
       assert_equal
         [|
-          [| "."; "."; "."; "."; "."; "O"; "."; "."; "."; "."; "." |];
+          [| "v"; "."; "."; "."; "."; "O"; "."; "."; "."; "."; "$" |];
           [| "."; "."; "."; "."; "."; "."; "."; "."; "."; "."; "." |];
           [| "."; "."; "."; "."; "#"; "#"; "#"; "."; "."; "."; "." |];
           [| "."; "."; "."; "."; "."; "."; "."; "."; "."; "."; "." |];
@@ -116,7 +130,7 @@ let room_tests =
           [| "."; "."; "."; "."; "."; "."; "."; "."; "."; "."; "." |];
           [| "."; "."; "."; "."; "#"; "#"; "#"; "."; "."; "."; "." |];
           [| "."; "."; "."; "."; "."; "."; "."; "."; "."; "."; "." |];
-          [| "."; "."; "."; "."; "."; "."; "."; "."; "."; "."; "." |];
+          [| "~"; "."; "."; "."; "."; "."; "."; "."; "."; "."; "." |];
         |]
         (Room.to_string_matrix
            (Room.load_room_from_file "../data/rooms/test_rooms/simple_test.json"))
@@ -204,7 +218,9 @@ let hud_tests =
         (Option.get
            (Game.test_input_handling ~cmd_palette_str:"help" dungeon
               Keyboard.Enter))
-        ~printer:Fun.id );
+        ~printer:Fun.id;
+      assert_equal "Command Palette:" (Dungeon.hud_text dungeon) ~printer:Fun.id
+        ~cmp:(fun s1 s2 -> String.trim s1 = String.trim s2) );
   ]
 
 let enemy_tests =
@@ -227,12 +243,14 @@ let enemy_tests =
       Enemies.take_damage enemy 10000;
       assert_bool "Enemies die after taking too much damage"
         (not (Enemies.is_alive enemy)) );
-    ( "enemies can move properly" >:: fun _ ->
+    ( "enemies move properly" >:: fun _ ->
       let dungeon =
         Dungeon.load_dungeon_from_file "../data/dungeons/test_enemies.json"
       in
       let room = Dungeon.current_room dungeon in
-      Room.update_enemies room (Dungeon.player dungeon) );
+      for _ = 1 to 20 do
+        Room.update_enemies room (Dungeon.player dungeon)
+      done );
   ]
 
 let game_tests =
@@ -245,6 +263,18 @@ let game_tests =
 
 let item_tests =
   [
+    ( "test picking up items" >:: fun _ ->
+      let item =
+        Item.create_item 0 Item (Some { Coords.x = 0; Coords.y = 0 })
+      in
+      assert_equal 0 (Item.get_item_id item) ~printer:string_of_int;
+      assert_equal
+        (Some { Coords.x = 0; Coords.y = 0 })
+        (Item.get_location item)
+        ~printer:(fun x -> Coords.to_string (Option.get x))
+        ~cmp:(fun x y -> Coords.equal (Option.get x) (Option.get y));
+      Item.pickup_item item;
+      assert_equal None (Item.get_location item) );
     ( "test armor" >:: fun _ ->
       let player = Player.create () in
       assert_equal 0 (Player.total_armor player) ~printer:string_of_int;
@@ -273,6 +303,36 @@ let item_tests =
       Player.damage player 12;
       assert_equal 0 (Player.total_armor player) ~printer:string_of_int;
       assert_equal 4 (Player.health player) ~printer:string_of_int );
+    ( "test item to_string" >:: fun _ ->
+      assert_equal "+" (Item.create_item 0 Item None |> Item.to_string);
+      assert_equal "v"
+        (Item.create_item 0 (Armor { def = ref 5 }) None |> Item.to_string);
+      assert_equal "$" (Item.create_item 0 BiggerRadius None |> Item.to_string);
+      assert_equal "~" (Item.create_item 0 ShorterFuse None |> Item.to_string)
+    );
+    ( "test other upgrade items" >:: fun _ ->
+      let player = Player.create () in
+
+      assert_equal 5 (Player.bombs player) ~printer:string_of_int;
+      Player.add_bombs player 3;
+      assert_equal 8 (Player.bombs player) ~printer:string_of_int;
+      Player.remove_bombs player 4;
+      assert_equal 4 (Player.bombs player) ~printer:string_of_int;
+      Player.remove_bombs player 10;
+      assert_equal 0 (Player.bombs player) ~printer:string_of_int;
+
+      assert_equal 6 (Player.fuse_time player) ~printer:string_of_int;
+      let shorter_fuse_item = Item.create_item 1 ShorterFuse None in
+      Player.equip player shorter_fuse_item;
+      assert_equal 5 (Player.fuse_time player) ~printer:string_of_int;
+
+      assert_equal 1 (Player.blast_radius player) ~printer:string_of_int;
+      let blast_radius_item = Item.create_item 2 BiggerRadius None in
+      Player.equip player blast_radius_item;
+      assert_equal 2 (Player.blast_radius player) ~printer:string_of_int;
+
+      Player.equip player shorter_fuse_item;
+      assert_equal 4 (Player.fuse_time player) ~printer:string_of_int );
   ]
 
 let tests =

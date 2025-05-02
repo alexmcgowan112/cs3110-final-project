@@ -2,6 +2,25 @@
   "playerStartX": 5,
   "playerStartY": 5,
   "enemies": [],
-  "items": [],
+  "items": [
+    {
+      "type": "armor",
+      "def": 2,
+      "x_coord": 0,
+      "y_coord": 0
+    },
+    {
+      "type": "biggerRadius",
+      "def": 2,
+      "x_coord": 10,
+      "y_coord": 0
+    },
+    {
+      "type": "shorterFuse",
+      "def": 2,
+      "x_coord": 0,
+      "y_coord": 10
+    }
+  ],
   "layout": "../data/rooms/test_rooms/simple.rm"
 }

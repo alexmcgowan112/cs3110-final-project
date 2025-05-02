@@ -4,9 +4,9 @@ type t = {
 }
 
 let compare c1 c2 =
-  if c1.x = c2.x then if c1.y = c2.y then 0 else if c1.x < c2.x then -1 else 1
-  else if c1.y < c2.y then -1
-  else 1
+  match compare c1.x c2.x with
+  | 0 -> compare c1.y c2.y
+  | n -> n
 
 let equal c1 c2 = compare c1 c2 = 0
 let hash = Hashtbl.hash

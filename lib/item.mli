@@ -37,9 +37,5 @@ val create_item : int -> stats -> Coords.t option -> t
 val to_string : t -> string
 (**[to_string item] is the string representation*)
 
-
-val clear_location : t -> unit
-(**[clear_location item] clears an item's coordinates (for when a player equips it)*)
-
 val stats : t -> stats
 (**[stats item] is the items Stats*)

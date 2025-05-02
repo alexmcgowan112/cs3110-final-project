@@ -289,7 +289,15 @@ let update_items room player =
   | None -> ()
   | Some item ->
       remove_from_room room item;
-      Item.clear_location item;
+      Item.pickup_item item;
+      Player.equip player item
+
+let update_items room player =
+  match item_here room room.playerLoc with
+  | None -> ()
+  | Some item ->
+      remove_from_room room item;
+      Item.pickup_item item;
       Player.equip player item
 
 let wait = process_bombs
