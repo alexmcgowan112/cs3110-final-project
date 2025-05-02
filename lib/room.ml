@@ -61,11 +61,10 @@ let item_here room coords =
 let coords_to_string room (coords : Coords.t) =
   if
     coords.y < 0 || coords.x < 0
-    || coords.y >= Array.length room.tiles
-    || coords.x >= Array.length room.tiles.(0)
+    || coords.y > Array.length room.tiles
+    || coords.x > Array.length room.tiles.(0)
   then "."
   else if Coords.equal room.playerLoc coords then "@"
-  else if room.tiles.(coords.y).(coords.x) = Wall then "#"
   else
     let bomb =
       List.find_opt (fun bomb -> Coords.equal bomb.position coords) room.bombs
@@ -213,16 +212,14 @@ let exploding room = not (List.is_empty room.explosions)
 
 let place_bomb room player =
   if
-    (not
-       (List.exists
-          (fun bomb -> Coords.equal room.playerLoc bomb.position)
-          room.bombs))
-    && Player.bombs player > 0
+    not
+      (List.exists
+         (fun bomb -> Coords.equal room.playerLoc bomb.position)
+         room.bombs)
   then
     room.bombs <-
       { position = room.playerLoc; fuse = Player.fuse_time player }
-      :: room.bombs;
-  Player.remove_bombs player 1
+      :: room.bombs
 
 let process_bombs room player =
   List.iter
