@@ -6,13 +6,17 @@ let new_colors () =
   ignore (Curses.start_color ());
   (* Define color pairs *)
   ignore (Curses.init_pair 1 Curses.Color.red Curses.Color.black);
+  ignore (Curses.init_color 100 0 855 86);
+  ignore (Curses.init_color 101 363 343 379);
   (*curses colors intiialized here because this function is called in the
     beginning. *)
   ignore (Curses.init_pair 2 Curses.Color.green Curses.Color.black);
   ignore (Curses.init_pair 3 Curses.Color.blue Curses.Color.black);
   ignore (Curses.init_pair 4 Curses.Color.yellow Curses.Color.black);
   ignore (Curses.init_pair 5 Curses.Color.cyan Curses.Color.black);
-  ignore (Curses.init_pair 6 Curses.Color.magenta Curses.Color.black)
+  ignore (Curses.init_pair 6 Curses.Color.magenta Curses.Color.black);
+  ignore (Curses.init_pair 7 101 Curses.Color.black);
+  ignore (Curses.init_pair 8 100 Curses.Color.black)
 
 let window =
   let w = Curses.initscr () in
@@ -41,6 +45,8 @@ let match_characters i j = function
   | "v" -> curses_print_color (i, j) "v" (Curses.A.color_pair 6)
   | "X" -> curses_print_color (i, j) "X" (Curses.A.color_pair 5)
   | "~" -> curses_print_color (i, j) "~" (Curses.A.color_pair 4)
+  | "#" -> curses_print_color (i, j) "#" (Curses.A.color_pair 7)
+  | "@" -> curses_print_color (i, j) "@" (Curses.A.color_pair 8)
   | x -> curses_print_color (i, j) x (Curses.A.color_pair 0)
 (*0 is default, the rest match the indexes up top. ctrl+F for init_pair*)
 

@@ -80,9 +80,11 @@ let process_world dungeon =
   (*main game loop*)
   let cmd_palette_display = handle_input dungeon in
   Room.update_items (Dungeon.current_room dungeon) (Dungeon.player dungeon);
-  Room.update_enemies (Dungeon.current_room dungeon) (Dungeon.player dungeon);
-  Room.update_player_health (Dungeon.current_room dungeon) (Dungeon.player dungeon);
   Room.explode (Dungeon.current_room dungeon);
+  Room.update_enemies (Dungeon.current_room dungeon) (Dungeon.player dungeon);
+  Room.update_player_health
+    (Dungeon.current_room dungeon)
+    (Dungeon.player dungeon);
   Dungeon.set_hud_text dungeon
     (hud_text dungeon
     ^
