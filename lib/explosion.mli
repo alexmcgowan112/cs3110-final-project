@@ -21,6 +21,3 @@ val tile_is_exploding : Coords.t -> t list -> G.t -> bool
     [tile_is_exploding] now takes the list of all explosions in a given room for
     simplicity. UPDATE: [tile_is_exploding] takes a graph of the room so that it
     can bfs around walls. *)
-
-val location : t -> Coords.t
-(** [location explosion] returns the coordinates of the explosion. *)
