@@ -18,3 +18,6 @@ val tile_is_exploding : Coords.t -> t list -> bool
     is currently exploding in any explosion in [explosions]. UPDATE:
     [tile_is_exploding] now takes the list of all explosions in a given room for
     simplicity. *)
+
+val location : t -> Coords.t
+(** [location explosion] returns the coordinates of the explosion. *)

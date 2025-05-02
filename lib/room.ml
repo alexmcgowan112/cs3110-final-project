@@ -250,16 +250,29 @@ let move_player room direction player =
   | _ -> ());
   process_bombs room player
 
+let remove_explosion_tiles room enemy =
+  let new_graph = G.copy room.graph in
+  List.iter
+    (G.remove_vertex new_graph)
+    (List.map (fun b -> b.position) room.bombs);
+  G.iter_vertex
+    (fun v ->
+      if Explosion.tile_is_exploding v room.explosions then
+        G.remove_vertex new_graph v)
+    new_graph;
+  new_graph
+
 let update_enemy room player e =
   match e with
   | None -> None
   | Some enemy ->
+      let new_graph = remove_explosion_tiles room e in
       if
         Explosion.tile_is_exploding (Enemies.get_position enemy) room.explosions
       then None (* right now, enemies insta-die when an explosion hits them. *)
       else
         Some
-          (Enemies.move_or_attack enemy room.playerLoc player room.graph
+          (Enemies.move_or_attack enemy room.playerLoc player new_graph
              room.enemies)
 
 let update_enemies room player =

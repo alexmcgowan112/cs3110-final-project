@@ -27,18 +27,16 @@ let window =
 
 let dungeon = Dungeon.load_dungeon_from_file "data/dungeons/medium.json"
 
+let curses_print_color (i, j) string color =
+  ignore (Curses.attron color);
+  ignore (Curses.mvaddstr i j string);
+  ignore (Curses.attroff color)
+
 (*TODO: temporary function. modify when changing implementation in future*)
 let match_characters i j = function
-  | "*" ->
-      ignore (Curses.attron (Curses.A.color_pair 1));
-      (*If you need to do stuff, change this # ^*)
-      ignore (Curses.mvaddstr i j "*");
-      ignore (Curses.attroff (Curses.A.color_pair 1))
-  | x ->
-      ignore (Curses.attron (Curses.A.color_pair 0));
-      (*0 is default, the rest match the indexes up top. ctrl+F for init_pair*)
-      ignore (Curses.mvaddstr i j x);
-      ignore (Curses.attroff (Curses.A.color_pair 0))
+  | "*" -> curses_print_color (i, j) "*" (Curses.A.color_pair 1)
+  | x -> curses_print_color (i, j) x (Curses.A.color_pair 0)
+(*0 is default, the rest match the indexes up top. ctrl+F for init_pair*)
 
 let print_string_colors string_matrix =
   Array.iteri

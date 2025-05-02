@@ -24,6 +24,8 @@ type t = {
 (*ghost uses next_move. goes thorugh walls zombie uses ____. does not go through
   walls*)
 
+let () = Random.self_init ()
+
 let create coords enemy_type =
   match enemy_type with
   | Ghost ->
@@ -86,11 +88,30 @@ let bfs_next_step g start goal all_enemies =
       | Some step -> if enemy_at_pos step all_enemies then None else Some step
       | None -> None
 
+let random_next_move graph curr all_enemies =
+  let neighbors = G.succ graph curr in
+  match neighbors with
+  | [] -> curr
+  | _ ->
+      let len = List.length neighbors in
+      let idx = Random.int len in
+      let att = List.nth neighbors idx in
+      if
+        Array.mem att
+          (Array.map
+             (fun e ->
+               match e with
+               | None -> curr
+               | Some p -> get_position p)
+             all_enemies)
+      then curr
+      else att
+
 let next_move target this room_graph all_enemies =
   let curr = get_position this in
   let potential = bfs_next_step room_graph curr target all_enemies in
   match potential with
-  | None -> curr
+  | None -> random_next_move room_graph curr all_enemies
   | Some next -> next
 
 (* I updated this file to not take the rooms directly and instead just take
