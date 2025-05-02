@@ -224,6 +224,7 @@ let hud_tests =
   ]
 
 let enemy_tests =
+  let graph = make_graph () in
   [
     ( "Default enemy has expected stats" >:: fun _ ->
       let enemy = Enemies.create { x = 5; y = 5 } "Ghost" in
@@ -243,6 +244,34 @@ let enemy_tests =
       ignore (Enemies.take_damage enemy 10000);
       assert_bool "Enemies die after taking too much damage"
         (not (Enemies.is_alive enemy)) );
+    ( "Zombie moves toward player and attacks in range" >:: fun _ ->
+      let enemy = Enemies.create { x = 5; y = 5 } "Zombie" in
+      let player = Player.create () in
+      let all_enemies = Array.make 1 (Some enemy) in
+      let moved_enemy =
+        Enemies.move_or_attack enemy { x = 5; y = 6 } player graph all_enemies
+          (fun _ -> ())
+      in
+      let pos = Enemies.get_position moved_enemy in
+      let dist = Coords.manhattan_dist pos { x = 5; y = 6 } in
+      assert_bool "Zombie should be in range or have moved closer" (dist <= 1)
+    );
+    ( "Bomber explodes when in range of player" >:: fun _ ->
+      let enemy = Enemies.create { x = 5; y = 5 } "Bomber" in
+      let player = Player.create () in
+      let all_enemies = Array.make 1 (Some enemy) in
+      let explosion_created = ref false in
+      let add_explosion exp =
+        explosion_created := true;
+        assert_equal { x = 5; y = 5 }
+          (Explosion.get_position exp)
+          ~cmp:Coords.equal ~printer:Coords.to_string
+      in
+      let _ =
+        Enemies.move_or_attack enemy { x = 5; y = 6 } player graph all_enemies
+          add_explosion
+      in
+      assert_bool "Bomber should have exploded" !explosion_created );
     ( "enemies move properly" >:: fun _ ->
       let dungeon =
         Dungeon.load_dungeon_from_file "../data/dungeons/test_enemies.json"
@@ -251,6 +280,22 @@ let enemy_tests =
       for _ = 1 to 20 do
         Room.update_enemies room (Dungeon.player dungeon)
       done );
+    ( "Bomber moves toward player when not in range" >:: fun _ ->
+      let enemy = Enemies.create { x = 2; y = 2 } "Bomber" in
+      let player = Player.create () in
+      let all_enemies = Array.make 1 (Some enemy) in
+      let explosion_created = ref false in
+      let add_explosion _ = explosion_created := true in
+      let moved_enemy =
+        Enemies.move_or_attack enemy { x = 5; y = 5 } player (make_graph ())
+          all_enemies add_explosion
+      in
+      let pos = Enemies.get_position moved_enemy in
+      assert_bool "Bomber should not have exploded" (not !explosion_created);
+      assert_bool "Bomber should have moved" (pos <> { x = 2; y = 2 });
+      let old_dist = Coords.manhattan_dist { x = 2; y = 2 } { x = 5; y = 5 } in
+      let new_dist = Coords.manhattan_dist pos { x = 5; y = 5 } in
+      assert_bool "Bomber should be closer to player" (new_dist < old_dist) );
   ]
 
 let game_tests =

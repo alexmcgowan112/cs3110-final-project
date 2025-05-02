@@ -53,3 +53,5 @@ let tile_is_exploding tile explosions graph =
 let spread exp =
   if exp.curr_radius = exp.max_radius then exp.in_progress <- false
   else exp.curr_radius <- exp.curr_radius + 1
+
+let get_position exp = exp.position
