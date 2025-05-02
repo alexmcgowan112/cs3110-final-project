@@ -307,3 +307,9 @@ let update_items room player =
 let wait = process_bombs
 let set_player_pos room loc = room.playerLoc <- loc
 (* TODO add check that new location is valid *)
+
+let update_player_health room player =
+  if
+    Explosion.tile_is_exploding (get_player_pos room) room.explosions
+  then 
+    Player.damage player 1 (*explosion damage*)
