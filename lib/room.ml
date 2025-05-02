@@ -143,9 +143,7 @@ let json_to_enemies lst =
                   x = to_int (member "start_x_coord" json_enemy);
                   y = to_int (member "start_y_coord" json_enemy);
                 }
-                (match to_string (member "enemy_type" json_enemy) with
-                | "Ghost" -> Enemies.Ghost
-                | _ -> failwith "Unknown enemy type"))))
+                (to_string (member "enemy_type" json_enemy)))))
 
 let tiles_to_graph tiles =
   let g = G.create () in
@@ -271,7 +269,9 @@ let update_enemy room player e =
         Explosion.tile_is_exploding
           (Enemies.get_position enemy)
           room.explosions room.graph
-      then None (* right now, enemies insta-die when an explosion hits them. *)
+      then
+        Enemies.take_damage enemy
+          1 (* right now, enemies insta-die when an explosion hits them. *)
       else
         Some
           (Enemies.move_or_attack enemy room.playerLoc player new_graph

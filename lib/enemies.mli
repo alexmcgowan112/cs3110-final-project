@@ -1,7 +1,10 @@
 type t
-type enemy_type = Ghost  (** The type of enemy. *)
 
-val create : Coords.t -> enemy_type -> t
+type enemy_type =
+  | Zombie
+  | Ghost  (** The type of enemy. *)
+
+val create : Coords.t -> string -> t
 (** [create pos] makes a new enemy at [pos] *)
 
 val move : t -> Coords.t -> unit
@@ -15,7 +18,7 @@ val next_move : Coords.t -> t -> Connections.G.t -> t option array -> Coords.t
     [enemy] based on [target] and [all_enemies]. This isn't used yet but can
     theoretically be called by room. *)
 
-val take_damage : t -> int -> unit
+val take_damage : t -> int -> t option
 (** [take_damage enemy amount] subtracts [amount] from the health of [enemy]. *)
 
 val is_alive : t -> bool

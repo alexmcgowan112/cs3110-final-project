@@ -226,7 +226,7 @@ let hud_tests =
 let enemy_tests =
   [
     ( "Default enemy has expected stats" >:: fun _ ->
-      let enemy = Enemies.create { x = 5; y = 5 } Enemies.Ghost in
+      let enemy = Enemies.create { x = 5; y = 5 } "Ghost" in
       assert_equal
         { Coords.x = 5; Coords.y = 5 }
         (Enemies.get_position enemy)
@@ -237,10 +237,10 @@ let enemy_tests =
         (Enemies.get_position enemy)
         ~cmp:Coords.equal ~printer:Coords.to_string;
       assert_bool "Enemies start out alive" (Enemies.is_alive enemy);
-      Enemies.take_damage enemy 10;
+      ignore (Enemies.take_damage enemy 1);
       assert_bool "Enemies don't instantly die from taking damage"
         (Enemies.is_alive enemy);
-      Enemies.take_damage enemy 10000;
+      ignore (Enemies.take_damage enemy 10000);
       assert_bool "Enemies die after taking too much damage"
         (not (Enemies.is_alive enemy)) );
     ( "enemies move properly" >:: fun _ ->
