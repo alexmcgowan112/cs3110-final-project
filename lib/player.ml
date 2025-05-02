@@ -3,6 +3,7 @@
 type t = {
   mutable health : int;
   mutable items : Item.t list;
+  mutable bombs : int;
   base_fuse_time : int;
   base_blast_radius : int;
 }
@@ -10,7 +11,15 @@ type t = {
 let health player = player.health
 
 let create () =
-  { health = 5; items = []; base_fuse_time = 6; base_blast_radius = 1 }
+  { health = 5; items = []; base_fuse_time = 6; base_blast_radius = 1; bombs = 5 }
+
+let add_bombs player num_bombs =
+  player.bombs <- player.bombs + num_bombs
+
+let remove_bombs player num_bombs =
+  player.bombs <- max 0 (player.bombs - num_bombs)
+
+let bombs player = player.bombs
 
 let total_armor player =
   List.fold_left
