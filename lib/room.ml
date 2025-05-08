@@ -270,7 +270,13 @@ let generate_enemies tiles room_width room_height : Enemies.t option array =
         let pos =
           List.nth valid_positions (Random.int (List.length valid_positions))
         in
-        Some (Enemies.create pos Enemies.Ghost))
+        let enemy_type =
+          match Random.int 3 with
+          | 0 -> "Zombie"
+          | 1 -> "Ghost"
+          | _ -> "Bomber"
+        in
+        Some (Enemies.create pos enemy_type))
 (* TODO make sure 2 enemies dont spawn on the same spot, make sure the spot isnt
    a wall, make sure its not where the player will be, etc *)
 
@@ -421,7 +427,6 @@ let remove_explosion_tiles room enemy =
 
 let add_explosion_to_room room exp = room.explosions <- exp :: room.explosions
 
-
 let update_enemy room player e =
   match e with
   | None -> None
@@ -435,7 +440,8 @@ let update_enemy room player e =
       else
         Some
           (Enemies.move_or_attack enemy room.playerLoc player new_graph
-             room.enemies (add_explosion_to_room room))
+             room.enemies
+             (add_explosion_to_room room))
 
 let update_enemies room player =
   Array.map_inplace (update_enemy room player) room.enemies
