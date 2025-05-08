@@ -141,8 +141,6 @@ let create_exits (room_sizes : (int * int) list) =
    should lead to, basically zip the 2 lists together to make a list of
    room_exit's*)
 let create_exits_from_data coords_list to_room_list =
-  Printf.printf "coords_list len: %i to_room_list len: %i\n"
-    (List.length coords_list) (List.length to_room_list);
 
   (* Ensure we don't exceed the number of available coordinates *)
   let rec take n lst =
@@ -161,17 +159,17 @@ let create_exits_from_data coords_list to_room_list =
     coords_list usable_to_room_list
 
 (* function to actually randomly generate a dungeon *)
-let generate () : t =
+let generate ?(rooms_dir = "data/rooms/medium_dungeon") ?(default_room_file = "data/rooms/test_rooms/simple.json") () : t =
   let num_rooms = min_rooms + Random.int (max_rooms - min_rooms) in
 
-  let room_data = List.init num_rooms (fun _ -> Room.pick_room_file ()) in
+  let room_data = List.init num_rooms (fun _ -> Room.pick_room_file ~rooms_dir:rooms_dir ()) in
 
   let room_exits = List.map (fun (w, h, f) -> (w, h)) room_data in
 
   let exits, connections = create_exits room_exits in
 
   (* First create all the rooms with provisional exits *)
-  let rooms = Array.make num_rooms { room = Room.new_room (); exits = [] } in
+  let rooms = Array.make num_rooms { room = Room.new_room ~room_file:default_room_file (); exits = [] } in
   for room_num = 0 to Array.length exits - 1 do
     let room, exit_coords =
       Room.generate (List.nth room_data room_num) (List.length exits.(room_num))

@@ -33,5 +33,7 @@ val set_hud_text : t -> string -> unit
 val player : t -> Player.t
 (* [player dungeon] is the [Player] that is in the provided dungeon. *)
 
-val generate : unit -> t
-(* [generate ()] is a randomly generated dungeon *)
+val generate : ?rooms_dir:string -> ?default_room_file:string -> unit -> t
+(* [generate ()] is a randomly generated dungeon. rooms_dir is the directory
+   that the rooms are located in (added so it can be set to the correct location
+   during testing as tests require ../data/ instead of data/) *)

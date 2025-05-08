@@ -355,8 +355,7 @@ let item_tests =
       assert_equal "$" (Item.create_item 0 BiggerRadius None |> Item.to_string);
       assert_equal "~" (Item.create_item 0 ShorterFuse None |> Item.to_string);
       assert_equal "H" (Item.create_item 0 Health None |> Item.to_string);
-      assert_equal "B" (Item.create_item 0 Bomb None |> Item.to_string);
-    );
+      assert_equal "B" (Item.create_item 0 Bomb None |> Item.to_string) );
     ( "test other upgrade items" >:: fun _ ->
       let player = Player.create () in
 
@@ -395,9 +394,50 @@ let item_tests =
       assert_equal 6 (Player.bombs player) ~printer:string_of_int );
   ]
 
+let random_generation_tests =
+  [
+    ( "random room generation produces correct number of exits" >:: fun _ ->
+      let num_exits = 3 in
+      let room_file_data = Room.pick_room_file ~rooms_dir:"../data/rooms/medium_dungeon" () in
+      let _, exits_coords =
+        Room.generate room_file_data num_exits
+      in
+      assert_equal num_exits (List.length exits_coords) ~printer:string_of_int
+    );
+    ( "room generation sets exit tiles correctly" >:: fun _ ->
+      let num_exits = 2 in
+      let room_file_data =
+        Room.pick_room_file ~rooms_dir:"../data/rooms/medium_dungeon" ()
+      in
+      let (room, exit_coords) = Room.generate room_file_data num_exits in
+      let matrix = Room.to_string_matrix room in
+      List.iter
+        (fun (coord : Coords.t) ->
+          let symbol = matrix.(coord.y).(coord.x) in
+          assert_equal "O" symbol ~printer:Fun.id)
+        exit_coords
+    );
+    ( "dungeon.generate creates valid dungeon" >:: fun _ ->
+      let dungeon = Dungeon.generate ~rooms_dir:"../data/rooms/medium_dungeon" ~default_room_file:"../data/rooms/test_rooms/simple_test.json" () in
+      (* Verify default HUD text *)
+      assert_equal "Welcome. Press Enter to open command palette."
+        (Dungeon.hud_text dungeon)
+        ~printer:Fun.id;
+      (* Verify that the player's starting position in the current room is within bounds *)
+      let room = Dungeon.current_room dungeon in
+      let player_pos = Room.get_player_pos room in
+      let matrix = Room.to_string_matrix room in
+      let height = Array.length matrix in
+      let width = if height > 0 then Array.length matrix.(0) else 0 in
+      assert_bool "Player position is within room bounds"
+        (player_pos.x >= 0 && player_pos.x < width &&
+         player_pos.y >= 0 && player_pos.y < height)
+  );
+  ]
+
 let tests =
   "test suite"
   >::: coords_tests @ keyboard_tests @ room_tests @ explosion_tests @ hud_tests
-       @ enemy_tests @ game_tests @ item_tests
+       @ enemy_tests @ game_tests @ item_tests @ random_generation_tests
 
 let _ = run_test_tt_main tests

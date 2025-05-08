@@ -1,6 +1,6 @@
 type t
 
-val new_room : unit -> t
+val new_room : ?room_file:string -> unit -> t
 (** [new_room ()] returns a new 11 by 11 room filled mostly with empty tiles and
     a few walls. *)
 
@@ -70,7 +70,7 @@ val generate : int * int * string -> int -> t * Coords.t list
     will use, and the number of exits to be placed in the room. Returns a room
     and a list of coords corresponding to the location of each exit*)
 
-val pick_room_file : unit -> int * int * string
+val pick_room_file : ?rooms_dir:string -> unit -> int * int * string
 (** [pick_room_tile ()] returns (width, height, room_file_name) by choosing a
     random \*.rm file*)
 

@@ -212,7 +212,9 @@ let load_room_from_file filename =
       items;
     }
 
-let new_room () = load_room_from_file "data/rooms/test_rooms/simple.json"
+let new_room ?(room_file = "data/rooms/test_rooms/simple.json") () =
+  load_room_from_file room_file
+
 let max_width = 30
 let min_width = 10
 let max_height = max_width
@@ -312,10 +314,8 @@ let generate_items (tiles : tile array array) =
   in
   aux num_items [] []
 
-let rooms_dir = "data/rooms/medium_dungeon"
-
 (* pick a random room (\*.rm) file to use for this particular room *)
-let pick_room_file () =
+let pick_room_file ?(rooms_dir = "data/rooms/medium_dungeon") () =
   let room_files =
     Array.fold_left
       (fun acc file ->
