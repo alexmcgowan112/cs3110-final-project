@@ -213,6 +213,148 @@ let load_room_from_file filename =
     }
 
 let new_room () = load_room_from_file "data/rooms/test_rooms/simple.json"
+let max_width = 30
+let min_width = 10
+let max_height = max_width
+let min_height = min_width
+
+(* overwrite all the exits in the provided tiles with the provided exits. if
+   there's other exits not in exits_coords (but was defined in the actual room
+   file *.rm), replace with a wall*)
+let set_exits tiles exits_coords =
+  Array.iteri
+    (fun row_num row ->
+      Array.iteri
+        (fun col_num tile ->
+          if List.mem { Coords.x = col_num; Coords.y = row_num } exits_coords
+          then tiles.(row_num).(col_num) <- Exit
+          else
+            match tiles.(row_num).(col_num) with
+            | Exit -> tiles.(row_num).(col_num) <- Wall
+            | _ -> ())
+        row)
+    tiles
+
+let min_enemies = 0
+let max_enemies = 5
+
+(* tile array array -> list of coords (tiles with nothing on them)*)
+let empty_tiles (tiles : tile array array) =
+  let empties_as_array =
+    Array.mapi
+      (fun row_num row ->
+        Array.mapi
+          (fun col_num col ->
+            match col with
+            | Empty -> Some { Coords.x = col_num; y = row_num }
+            | _ -> None)
+          row)
+      tiles
+  in
+  let empties_nested_list =
+    Array.fold_left (fun acc row -> acc @ Array.to_list row) [] empties_as_array
+  in
+  List.filter_map
+    (fun c_opt ->
+      match c_opt with
+      | Some c -> Some c
+      | None -> None)
+    empties_nested_list
+
+let generate_enemies tiles room_width room_height : Enemies.t option array =
+  let num_enemies = min_enemies + Random.int (max_enemies - min_enemies + 1) in
+  let valid_positions = empty_tiles tiles in
+  if List.length valid_positions = 0 then [||]
+  else
+    Array.init num_enemies (fun _ ->
+        let pos =
+          List.nth valid_positions (Random.int (List.length valid_positions))
+        in
+        Some (Enemies.create pos Enemies.Ghost))
+(* TODO make sure 2 enemies dont spawn on the same spot, make sure the spot isnt
+   a wall, make sure its not where the player will be, etc *)
+
+let generate_items (tiles : tile array array) =
+  let min_items = 2 in
+  let max_items = 3 in
+  let num_items = min_items + Random.int (max_items - min_items + 1) in
+  let valid_positions = empty_tiles tiles in
+  let rec aux n acc used_positions =
+    if n <= 0 then acc
+    else
+      let avail_positions =
+        List.filter
+          (fun pos ->
+            not (List.exists (fun p -> Coords.equal p pos) used_positions))
+          valid_positions
+      in
+      (* If there are no more available positions, stop generating items *)
+      if avail_positions = [] then acc
+      else
+        let pos =
+          List.nth avail_positions (Random.int (List.length avail_positions))
+        in
+        let stat =
+          match Random.int 3 with
+          | 0 -> Item.Armor { def = ref 2 }
+          | 1 -> Item.BiggerRadius
+          | 2 -> Item.ShorterFuse
+          | _ -> failwith "a random int 0-2 was not 0-2 (should be impossible)"
+        in
+        let item = Item.create_item (1000 + n) stat (Some pos) in
+        aux (n - 1) (item :: acc) (pos :: used_positions)
+  in
+  aux num_items [] []
+
+let rooms_dir = "data/rooms/medium_dungeon"
+
+(* pick a random room (\*.rm) file to use for this particular room *)
+let pick_room_file () =
+  let room_files =
+    Array.fold_left
+      (fun acc file ->
+        if Filename.check_suffix file "rm" then (rooms_dir ^ "/" ^ file) :: acc
+        else acc) (*TODO is the / above cross platform?*)
+      [] (Sys.readdir rooms_dir)
+    (*TODO make sure to keep the rooms_dir up to date if we move files around*)
+  in
+  let room_file = List.nth room_files (Random.int (List.length room_files)) in
+  let tiles = read_file_to_tiles room_file in
+  let width = Array.length tiles in
+  let height = Array.length tiles.(0) in
+  (width, height, room_file)
+
+let get_empty_tiles room = empty_tiles room.tiles
+
+(* given tiles and a number of exits to create, return a list of Coords for each
+   exit *)
+let rec create_exits tiles num_exits =
+  let exit_options = empty_tiles tiles in
+  let rec aux acc =
+    if List.length acc >= num_exits then acc
+    else
+      let coord =
+        List.nth exit_options (Random.int (List.length exit_options))
+      in
+      let acc' = if List.mem coord acc then acc else coord :: acc in
+      aux acc'
+  in
+  aux []
+
+let generate (width, height, room_file) num_exits : t * Coords.t list =
+  let tiles = read_file_to_tiles room_file in
+  let exits_coords = create_exits tiles num_exits in
+  let () = set_exits tiles exits_coords in
+  let enemies = generate_enemies tiles width height in
+  let items = generate_items tiles in
+  let graph = tiles_to_graph tiles in
+  let playerLoc_options = empty_tiles tiles in
+  let playerLoc =
+    List.nth playerLoc_options (Random.int (List.length playerLoc_options))
+  in
+  ( { tiles; enemies; items; graph; bombs = []; explosions = []; playerLoc },
+    exits_coords )
+
 let get_enemies room = room.enemies
 
 (* Game Logic *)

@@ -31,7 +31,11 @@ let window =
   if Curses.has_colors () then new_colors ();
   w
 
-let dungeon = Dungeon.load_dungeon_from_file "data/dungeons/medium.json"
+(* load pre-made dungeon *)
+(* let dungeon = Dungeon.load_dungeon_from_file "data/dungeons/medium.json" *)
+
+(* randomly generate dungeon *)
+let dungeon = Dungeon.generate ()
 
 let curses_print_color (i, j) string color =
   ignore (Curses.attron color);

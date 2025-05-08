@@ -1,4 +1,8 @@
 type t
+(* the type of a dungeon*)
+
+type room_exit
+(* the type of an exit leading from one room to another within the dungeon*)
 
 val create : unit -> t
 (** [create ()] is a new dungeon. It currently has 2 rooms and one exit
@@ -28,3 +32,6 @@ val set_hud_text : t -> string -> unit
 
 val player : t -> Player.t
 (* [player dungeon] is the [Player] that is in the provided dungeon. *)
+
+val generate : unit -> t
+(* [generate ()] is a randomly generated dungeon *)
