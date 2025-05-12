@@ -224,6 +224,7 @@ let hud_tests =
   ]
 
 let enemy_tests =
+  let graph = make_graph () in
   [
     ( "Default enemy has expected stats" >:: fun _ ->
       let enemy = Enemies.create { x = 5; y = 5 } "Ghost" in
@@ -237,12 +238,40 @@ let enemy_tests =
         (Enemies.get_position enemy)
         ~cmp:Coords.equal ~printer:Coords.to_string;
       assert_bool "Enemies start out alive" (Enemies.is_alive enemy);
-      ignore (Enemies.take_damage enemy 1);
+      ignore (Enemies.take_damage enemy 1 (fun _ -> ()));
       assert_bool "Enemies don't instantly die from taking damage"
         (Enemies.is_alive enemy);
-      ignore (Enemies.take_damage enemy 10000);
+      ignore (Enemies.take_damage enemy 10000 (fun _ -> ()));
       assert_bool "Enemies die after taking too much damage"
         (not (Enemies.is_alive enemy)) );
+    ( "Zombie moves toward player and attacks in range" >:: fun _ ->
+      let enemy = Enemies.create { x = 5; y = 5 } "Zombie" in
+      let player = Player.create () in
+      let all_enemies = Array.make 1 (Some enemy) in
+      let moved_enemy =
+        Enemies.move_or_attack enemy { x = 5; y = 6 } player graph all_enemies
+          (fun _ -> ())
+      in
+      let pos = Enemies.get_position moved_enemy in
+      let dist = Coords.manhattan_dist pos { x = 5; y = 6 } in
+      assert_bool "Zombie should be in range or have moved closer" (dist <= 1)
+    );
+    ( "Bomber explodes when in range of player" >:: fun _ ->
+      let enemy = Enemies.create { x = 5; y = 5 } "Bomber" in
+      let player = Player.create () in
+      let all_enemies = Array.make 1 (Some enemy) in
+      let explosion_created = ref false in
+      let add_explosion exp =
+        explosion_created := true;
+        assert_equal { x = 5; y = 5 }
+          (Explosion.get_position exp)
+          ~cmp:Coords.equal ~printer:Coords.to_string
+      in
+      let _ =
+        Enemies.move_or_attack enemy { x = 5; y = 6 } player graph all_enemies
+          add_explosion
+      in
+      assert_bool "Bomber should have exploded" !explosion_created );
     ( "enemies move properly" >:: fun _ ->
       let dungeon =
         Dungeon.load_dungeon_from_file "../data/dungeons/test_enemies.json"
@@ -251,6 +280,22 @@ let enemy_tests =
       for _ = 1 to 20 do
         Room.update_enemies room (Dungeon.player dungeon)
       done );
+    ( "Bomber moves toward player when not in range" >:: fun _ ->
+      let enemy = Enemies.create { x = 2; y = 2 } "Bomber" in
+      let player = Player.create () in
+      let all_enemies = Array.make 1 (Some enemy) in
+      let explosion_created = ref false in
+      let add_explosion _ = explosion_created := true in
+      let moved_enemy =
+        Enemies.move_or_attack enemy { x = 5; y = 5 } player (make_graph ())
+          all_enemies add_explosion
+      in
+      let pos = Enemies.get_position moved_enemy in
+      assert_bool "Bomber should not have exploded" (not !explosion_created);
+      assert_bool "Bomber should have moved" (pos <> { x = 2; y = 2 });
+      let old_dist = Coords.manhattan_dist { x = 2; y = 2 } { x = 5; y = 5 } in
+      let new_dist = Coords.manhattan_dist pos { x = 5; y = 5 } in
+      assert_bool "Bomber should be closer to player" (new_dist < old_dist) );
   ]
 
 let game_tests =
@@ -308,8 +353,9 @@ let item_tests =
       assert_equal "v"
         (Item.create_item 0 (Armor { def = ref 5 }) None |> Item.to_string);
       assert_equal "$" (Item.create_item 0 BiggerRadius None |> Item.to_string);
-      assert_equal "~" (Item.create_item 0 ShorterFuse None |> Item.to_string)
-    );
+      assert_equal "~" (Item.create_item 0 ShorterFuse None |> Item.to_string);
+      assert_equal "H" (Item.create_item 0 Health None |> Item.to_string);
+      assert_equal "B" (Item.create_item 0 Bomb None |> Item.to_string) );
     ( "test other upgrade items" >:: fun _ ->
       let player = Player.create () in
 
@@ -333,11 +379,65 @@ let item_tests =
 
       Player.equip player shorter_fuse_item;
       assert_equal 4 (Player.fuse_time player) ~printer:string_of_int );
+    ( "equipping Health item sets player health to 5" >:: fun _ ->
+      let player = Player.create () in
+      Player.damage player 3;
+      assert_equal 2 (Player.health player) ~printer:string_of_int;
+      let health_item = Item.create_item 0 Health None in
+      Player.equip player health_item;
+      assert_equal 5 (Player.health player) ~printer:string_of_int );
+    ( "equipping Bomb item increases player's bomb count" >:: fun _ ->
+      let player = Player.create () in
+      assert_equal 5 (Player.bombs player) ~printer:string_of_int;
+      let bomb_item = Item.create_item 1 Bomb None in
+      Player.equip player bomb_item;
+      assert_equal 6 (Player.bombs player) ~printer:string_of_int );
+  ]
+
+let random_generation_tests =
+  [
+    ( "random room generation produces correct number of exits" >:: fun _ ->
+      let num_exits = 3 in
+      let room_file_data = Room.pick_room_file ~rooms_dir:"../data/rooms/medium_dungeon" () in
+      let _, exits_coords =
+        Room.generate room_file_data num_exits
+      in
+      assert_equal num_exits (List.length exits_coords) ~printer:string_of_int
+    );
+    ( "room generation sets exit tiles correctly" >:: fun _ ->
+      let num_exits = 2 in
+      let room_file_data =
+        Room.pick_room_file ~rooms_dir:"../data/rooms/medium_dungeon" ()
+      in
+      let (room, exit_coords) = Room.generate room_file_data num_exits in
+      let matrix = Room.to_string_matrix room in
+      List.iter
+        (fun (coord : Coords.t) ->
+          let symbol = matrix.(coord.y).(coord.x) in
+          assert_equal "O" symbol ~printer:Fun.id)
+        exit_coords
+    );
+    ( "dungeon.generate creates valid dungeon" >:: fun _ ->
+      let dungeon = Dungeon.generate ~rooms_dir:"../data/rooms/medium_dungeon" ~default_room_file:"../data/rooms/test_rooms/simple_test.json" () in
+      (* Verify default HUD text *)
+      assert_equal "Welcome. Press Enter to open command palette."
+        (Dungeon.hud_text dungeon)
+        ~printer:Fun.id;
+      (* Verify that the player's starting position in the current room is within bounds *)
+      let room = Dungeon.current_room dungeon in
+      let player_pos = Room.get_player_pos room in
+      let matrix = Room.to_string_matrix room in
+      let height = Array.length matrix in
+      let width = if height > 0 then Array.length matrix.(0) else 0 in
+      assert_bool "Player position is within room bounds"
+        (player_pos.x >= 0 && player_pos.x < width &&
+         player_pos.y >= 0 && player_pos.y < height)
+  );
   ]
 
 let tests =
   "test suite"
   >::: coords_tests @ keyboard_tests @ room_tests @ explosion_tests @ hud_tests
-       @ enemy_tests @ game_tests @ item_tests
+       @ enemy_tests @ game_tests @ item_tests @ random_generation_tests
 
 let _ = run_test_tt_main tests

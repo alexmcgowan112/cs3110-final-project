@@ -11,7 +11,7 @@ type room_exit = {
 type dungeon_room = {
   room : Room.t;
   (* exits: dict of exits for a room *)
-  exits : room_exit list;
+  mutable exits : room_exit list;
 }
 
 (* TODO AF, RI *)
@@ -76,6 +76,144 @@ let load_dungeon_from_file filename =
 
 let create () = load_dungeon_from_file "data/dungeons/simple.json"
 let create_test () = load_dungeon_from_file "../data/dungeons/test.json"
+let min_rooms = 5
+let max_rooms = 10
+let min_exits = 1
+let max_exits = 4
+
+(* given a list of availible coordinates, a room (number in the list of rooms
+   the dungeon holds), and a list of already placed exits in the room, get a
+   Coordinate at which to place a new exit. *)
+let rec place_exit (empty_coords : Coords.t list) to_room
+    (existing_exits : room_exit list) : Coords.t =
+  let coords = List.nth empty_coords (Random.int (List.length empty_coords)) in
+  let x_coord = coords.x in
+  let y_coord = coords.y in
+  if
+    List.mem
+      { coords = { Coords.x = x_coord; Coords.y = y_coord }; to_room }
+      existing_exits
+  then place_exit empty_coords to_room existing_exits
+  else coords
+
+(* A connection between two rooms *)
+type room_connection = {
+  room1 : int;
+  room2 : int;
+}
+
+(* frankly, i forgot what exactly this function does *)
+let create_exits (room_sizes : (int * int) list) =
+  (* Create a list to store all bi-directional connections *)
+  let connections = ref [] in
+
+  (* Connect each room to the next one to form a path *)
+  for i = 0 to List.length room_sizes - 2 do
+    connections := { room1 = i; room2 = i + 1 } :: !connections
+  done;
+
+  (* Add more random connections to make it interesting *)
+  let num_extra =
+    (List.length room_sizes / 3) + Random.int (List.length room_sizes)
+  in
+  for _ = 0 to num_extra do
+    let r1 = Random.int (List.length room_sizes) in
+    let r2 = Random.int (List.length room_sizes) in
+    if r1 <> r2 then connections := { room1 = r1; room2 = r2 } :: !connections
+  done;
+
+  (* Convert connections to the rooms array format *)
+  let rooms = Array.make (List.length room_sizes) [] in
+  List.iter
+    (fun conn ->
+      rooms.(conn.room1) <- conn.room2 :: rooms.(conn.room1);
+      rooms.(conn.room2) <- conn.room1 :: rooms.(conn.room2))
+    !connections;
+
+  (* Remove duplicate connections *)
+  for i = 0 to Array.length rooms - 1 do
+    rooms.(i) <- List.sort_uniq Int.compare rooms.(i)
+  done;
+
+  (rooms, !connections)
+
+(* given a list of coordinates (1 / exit) and a list of the room that each exit
+   should lead to, basically zip the 2 lists together to make a list of
+   room_exit's*)
+let create_exits_from_data coords_list to_room_list =
+
+  (* Ensure we don't exceed the number of available coordinates *)
+  let rec take n lst =
+    match (n, lst) with
+    | 0, _ -> []
+    | _, [] -> []
+    | n, h :: t -> h :: take (n - 1) t
+  in
+
+  (* if we have too many rooms to connect and not enough coordinates, only use
+     as many room connections as we have coordinates available *)
+  let usable_to_room_list = take (List.length coords_list) to_room_list in
+
+  List.map2
+    (fun coords to_room -> { coords; to_room })
+    coords_list usable_to_room_list
+
+(* function to actually randomly generate a dungeon *)
+let generate ?(rooms_dir = "data/rooms/medium_dungeon") ?(default_room_file = "data/rooms/test_rooms/simple.json") () : t =
+  let num_rooms = min_rooms + Random.int (max_rooms - min_rooms) in
+
+  let room_data = List.init num_rooms (fun _ -> Room.pick_room_file ~rooms_dir:rooms_dir ()) in
+
+  let room_exits = List.map (fun (w, h, f) -> (w, h)) room_data in
+
+  let exits, connections = create_exits room_exits in
+
+  (* First create all the rooms with provisional exits *)
+  let rooms = Array.make num_rooms { room = Room.new_room ~room_file:default_room_file (); exits = [] } in
+  for room_num = 0 to Array.length exits - 1 do
+    let room, exit_coords =
+      Room.generate (List.nth room_data room_num) (List.length exits.(room_num))
+    in
+    rooms.(room_num) <-
+      { room; exits = create_exits_from_data exit_coords exits.(room_num) }
+  done;
+
+  (* Now ensure exits match up between paired rooms *)
+  List.iter
+    (fun conn ->
+      (* Find exits connecting these rooms *)
+      let r1_to_r2 =
+        List.find
+          (fun exit -> exit.to_room = conn.room2)
+          rooms.(conn.room1).exits
+      in
+      let r2_to_r1 =
+        List.find
+          (fun exit -> exit.to_room = conn.room1)
+          rooms.(conn.room2).exits
+      in
+
+      (* Ensure both exits point to each other *)
+      rooms.(conn.room1).exits <-
+        { coords = r1_to_r2.coords; to_room = conn.room2 }
+        :: List.filter
+             (fun e -> e.to_room <> conn.room2)
+             rooms.(conn.room1).exits;
+
+      rooms.(conn.room2).exits <-
+        { coords = r2_to_r1.coords; to_room = conn.room1 }
+        :: List.filter
+             (fun e -> e.to_room <> conn.room1)
+             rooms.(conn.room2).exits)
+    connections;
+
+  {
+    rooms;
+    player = Player.create ();
+    hud_text = "Welcome. Press Enter to open command palette.";
+    current_room = 0;
+  }
+
 let current_room dungeon = dungeon.rooms.(dungeon.current_room).room
 
 let set_hud_text dungeon text =
@@ -102,7 +240,7 @@ let will_this_move_lead_to_an_exit dungeon dir =
   in
   let matching_exits =
     List.filter
-      (fun curr_exit -> curr_exit.coords = pos_after_move)
+      (fun curr_exit -> Coords.equal curr_exit.coords pos_after_move)
       dungeon.rooms.(dungeon.current_room).exits
   in
   if List.length matching_exits = 1 then Some (List.hd matching_exits) else None

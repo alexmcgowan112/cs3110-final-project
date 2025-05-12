@@ -27,6 +27,8 @@ type t = {
 (*Zombie uses next_move. goes thorugh walls zombie uses ____. does not go
   through walls*)
 
+let bomber_blast_radius = 3
+
 let create coords enemy_type =
   match enemy_type with
   | "Zombie" ->
@@ -149,9 +151,13 @@ let next_move_no_wall (target : Coords.t) this all_enemies : Coords.t =
   in
   if enemy_at_pos potential all_enemies then curr else potential
 
-let take_damage this damage =
+let take_damage this damage add_explosion =
   this.health <- this.health - damage;
-  if this.health < 0 then None else Some this
+  if this.health < 0 then (
+    if this.enemy_type = Bomber then
+      add_explosion (Explosion.create this.position bomber_blast_radius);
+    None)
+  else Some this
 
 let is_alive this = this.health > 0
 
@@ -162,7 +168,7 @@ let move_or_attack enemy player_loc player room_graph all_enemies add_explosion
      | Bomber ->
          if Coords.manhattan_dist enemy.position player_loc <= enemy.atk_range
          then (
-           add_explosion (Explosion.create enemy.position 3);
+           add_explosion (Explosion.create enemy.position bomber_blast_radius);
            enemy.health <- 0)
          else move enemy (next_move player_loc enemy room_graph all_enemies)
      | Zombie | Ghost ->

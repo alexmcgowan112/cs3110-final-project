@@ -1,6 +1,6 @@
 type t
 
-val new_room : unit -> t
+val new_room : ?room_file:string -> unit -> t
 (** [new_room ()] returns a new 11 by 11 room filled mostly with empty tiles and
     a few walls. *)
 
@@ -49,6 +49,34 @@ val update_items : t -> Player.t -> unit
 (**[update_items room player] equips the item the player is standing on to the
    player and removes it from the room (assuming the player is standing on an
    item)*)
+
+val generate : int * int * string -> int -> t * Coords.t list
+(** [generate (width, height, room_file) num_exits ] actually generate a room
+    given the width of the room, height of the room, the \*.rm file the room
+    will use, and the number of exits to be placed in the room. Returns a room
+    and a list of coords corresponding to the location of each exit*)
+
+val pick_room_file : unit -> int * int * string
+(** [pick_room_tile ()] returns (width, height, room_file_name) by choosing a
+    random \*.rm file*)
+
+val get_empty_tiles : t -> Coords.t list
+(** [get_empty_tiles room] is the list of all the Coords of empty tiles in the
+    provided room*)
+
+val generate : int * int * string -> int -> t * Coords.t list
+(** [generate (width, height, room_file) num_exits ] actually generate a room
+    given the width of the room, height of the room, the \*.rm file the room
+    will use, and the number of exits to be placed in the room. Returns a room
+    and a list of coords corresponding to the location of each exit*)
+
+val pick_room_file : ?rooms_dir:string -> unit -> int * int * string
+(** [pick_room_tile ()] returns (width, height, room_file_name) by choosing a
+    random \*.rm file*)
+
+val get_empty_tiles : t -> Coords.t list
+(** [get_empty_tiles room] is the list of all the Coords of empty tiles in the
+    provided room*)
 
 val update_player_health : t -> Player.t -> unit
 (** [update_player_health room player] updates the player's health based on
