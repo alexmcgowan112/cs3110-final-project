@@ -31,11 +31,14 @@ let window =
   if Curses.has_colors () then new_colors ();
   w
 
-(* load pre-made dungeon *)
 (* let dungeon = Dungeon.load_dungeon_from_file "data/dungeons/medium.json" *)
 
-(* randomly generate dungeon *)
-let dungeon = Dungeon.generate ()
+let dungeon =
+  if Array.length Sys.argv >= 2 && Sys.argv.(1) = "test" then
+    (* load pre-made dungeon *)
+    Dungeon.load_dungeon_from_file "data/dungeons/medium.json"
+  else (* randomly generate dungeon *)
+    Dungeon.generate ()
 
 let curses_print_color (i, j) string color =
   ignore (Curses.attron color);
