@@ -8,7 +8,10 @@ O is a door to another room
 Numbers represent bombs (and how long until they explode)
 * is an exploding tile
 
-+ is an item
+X is an enemy
+
 v is armor
 $ makes your bombs radius bigger
 ~ makes your bombs fuse shorter
+B is an extra bomb
+H gives you health

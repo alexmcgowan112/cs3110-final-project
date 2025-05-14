@@ -32,11 +32,12 @@ let window =
   w
 
 let dungeon =
-  if Array.length Sys.argv >= 2 && Sys.argv.(1) = "test" then
+  if Array.length Sys.argv >= 2 && Sys.argv.(1) = "random" then
+    (* randomly generate dungeon *)
+    Dungeon.generate ()
+  else
     (* load pre-made dungeon *)
     Dungeon.load_dungeon_from_file "data/dungeons/medium.json"
-  else (* randomly generate dungeon *)
-    Dungeon.generate ()
 
 let curses_print_color (i, j) string color =
   ignore (Curses.attron color);
