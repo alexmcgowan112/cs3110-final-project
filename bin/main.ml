@@ -31,8 +31,6 @@ let window =
   if Curses.has_colors () then new_colors ();
   w
 
-(* let dungeon = Dungeon.load_dungeon_from_file "data/dungeons/medium.json" *)
-
 let dungeon =
   if Array.length Sys.argv >= 2 && Sys.argv.(1) = "test" then
     (* load pre-made dungeon *)
