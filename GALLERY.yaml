@@ -24,7 +24,8 @@ git-repo: "https://github.coecis.cornell.edu/acm355/cs3110-final-project"
 demo-video-url: "https://youtu.be/MMMz-7cHwC0"
 # Write a short, attention-grabbing description of your project.
 desc: >
-  Our project is an interactive roguelike game. Players can move their character between rooms
+  Our project is an interactive roguelike game. Players explore randomly generated dungeons,
   find cool items, and fight enemies using a precision weapon, large bombs. 
-  Players will be able to upgrade their character and fight increasingly difficult enemies 
-  until they reach some arbitrary stat. Wooo.
+  Players will upgrade their character over the course of the game to make clearing 
+  rooms easier. Players must carefully manage their supply of bombs and items 
+  to survive the dungeon. 
