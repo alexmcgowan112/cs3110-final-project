@@ -3,3 +3,5 @@ Instructions on how to install and build your system. This file should include a
 - opam install curses
 - opam install yojson
 - opam install ocamlgraph
+
+Note: when in the game, press enter to open the command palette then type "help" and press enter to see the game's instructions at any time.
